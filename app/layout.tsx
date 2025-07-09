@@ -5,7 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Greffa",
+  title: "Daily Earn",
   description: "Earn money by doing tasks",
 }
 

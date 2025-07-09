@@ -15,7 +15,7 @@ export default function Terms() {
     <MobileLayout>
       {/* Header */}
       <div className="px-6 md:px-8 pt-8 md:pt-12 pb-6">
-        <h1 className="text-3xl md:text-4xl font-bold">Do you agree?</h1>
+        <h1 className="text-3xl md:text-4xl font-semibold">Do you agree?</h1>
       </div>
 
       {/* Terms Content */}

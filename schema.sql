@@ -1,0 +1,38 @@
+-- Create users table
+CREATE TABLE dailyearn_users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  full_name VARCHAR(255) NOT NULL,
+  referral_id VARCHAR(50),
+  referral_code VARCHAR(50) UNIQUE NOT NULL DEFAULT 'REF' || LPAD(FLOOR(RANDOM() * 999999)::TEXT, 6, '0'),
+  balance DECIMAL(10, 2) DEFAULT 0.00,
+  email_verified BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create referrals table
+CREATE TABLE dailyearn_referrals (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  referrer_id UUID REFERENCES dailyearn_users(id) ON DELETE CASCADE,
+  referred_id UUID REFERENCES dailyearn_users(id) ON DELETE CASCADE,
+  reward_amount DECIMAL(10, 2) DEFAULT 0.00,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create verification_codes table
+CREATE TABLE dailyearn_verification_codes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES dailyearn_users(id) ON DELETE CASCADE,
+  code VARCHAR(6) NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  used BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX idx_dailyearn_users_email ON dailyearn_users(email);
+CREATE INDEX idx_dailyearn_users_referral_code ON dailyearn_users(referral_code);
+CREATE INDEX idx_dailyearn_verification_codes_user_id ON dailyearn_verification_codes(user_id);
+CREATE INDEX idx_dailyearn_verification_codes_code ON dailyearn_verification_codes(code);

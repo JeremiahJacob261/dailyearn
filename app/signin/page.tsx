@@ -1,34 +1,65 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Eye, EyeOff, ChevronRight } from "lucide-react"
+import { Eye, EyeOff, ChevronRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MobileLayout } from "@/components/mobile-layout"
+import { Alert } from "@/components/ui/alert"
+import { authService } from "@/lib/auth"
 
 export default function SignIn() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [alert, setAlert] = useState<{ type: 'success' | 'error' | 'warning', message: string } | null>(null)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle sign in logic here
-    console.log("Sign in:", formData)
+    
+    if (!formData.email.trim() || !formData.password.trim()) {
+      setAlert({ type: 'error', message: 'Please fill in all fields' })
+      return
+    }
+
+    setIsLoading(true)
+    setAlert(null)
+
+    try {
+      await authService.signIn(formData)
+      
+      setAlert({ type: 'success', message: 'Successfully signed in!' })
+      
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 1500)
+    } catch (error: any) {
+      setAlert({ type: 'error', message: error.message || 'Failed to sign in' })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
     <MobileLayout>
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center px-6 md:px-8 pt-8 md:pt-12 pb-6">
-        <h1 className="text-3xl md:text-4xl font-bold">Sign in</h1>
+        <h1 className="text-3xl md:text-4xl font-semibold">Sign in</h1>
         <button onClick={() => router.push("/")} className="flex items-center text-stone-400 text-lg md:text-xl">
           Create account
           <ChevronRight className="w-5 h-5 ml-1" />
@@ -56,6 +87,7 @@ export default function SignIn() {
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0"
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -72,11 +104,13 @@ export default function SignIn() {
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0 pr-12"
               required
+              disabled={isLoading}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400"
+              disabled={isLoading}
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
@@ -84,7 +118,7 @@ export default function SignIn() {
         </div>
 
         <div className="text-left">
-          <button type="button" className="text-stone-400 text-base md:text-lg">
+          <button type="button" className="text-stone-400 text-base md:text-lg hover:text-stone-300 transition-colors">
             Forgot password?
           </button>
         </div>
@@ -96,9 +130,17 @@ export default function SignIn() {
         <div className="pt-8 pb-8 md:pb-12">
           <Button
             type="submit"
-            className="w-full h-14 md:h-16 bg-lime-400 hover:bg-lime-500 text-black font-semibold text-lg md:text-xl rounded-2xl"
+            className="w-full h-14 md:h-16 bg-lime-400 hover:bg-lime-500 text-black font-semibold text-lg md:text-xl rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            disabled={isLoading}
           >
-            Continue
+            {isLoading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Signing In...
+              </>
+            ) : (
+              'Continue'
+            )}
           </Button>
         </div>
       </form>

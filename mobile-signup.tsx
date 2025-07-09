@@ -41,7 +41,7 @@ export default function Component() {
 
       {/* Header */}
       <div className="flex justify-between items-center px-6 pt-6 pb-4">
-        <h1 className="text-3xl font-bold">Create account</h1>
+        <h1 className="text-3xl font-semibold">Create account</h1>
         <button className="flex items-center text-stone-400 text-lg">
           Sign in
           <ChevronRight className="w-5 h-5 ml-1" />

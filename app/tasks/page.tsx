@@ -68,7 +68,7 @@ export default function Tasks() {
           <div className="bg-stone-800 rounded-2xl p-6 md:p-8 relative overflow-hidden">
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h3 className="text-white text-xl md:text-2xl font-bold mb-2">Complete tasks to earn</h3>
+                <h3 className="text-white text-xl md:text-2xl font-semibold mb-2">Complete tasks to earn</h3>
                 <p className="text-stone-300 text-base md:text-lg mb-6">
                   Ensure you complete all tasks to be eligible for earnings and withdrawals!
                 </p>
@@ -93,7 +93,7 @@ export default function Tasks() {
 
         {/* Your Tasks */}
         <div className="px-6 md:px-8 pb-8">
-          <h2 className="text-white text-2xl md:text-3xl font-bold mb-6">Your tasks</h2>
+          <h2 className="text-white text-2xl md:text-3xl font-semibold mb-6">Your tasks</h2>
           <div className="space-y-4">
             {tasks.map((task) => (
               <TaskCard
