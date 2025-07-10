@@ -36,3 +36,16 @@ CREATE INDEX idx_dailyearn_users_email ON dailyearn_users(email);
 CREATE INDEX idx_dailyearn_users_referral_code ON dailyearn_users(referral_code);
 CREATE INDEX idx_dailyearn_verification_codes_user_id ON dailyearn_verification_codes(user_id);
 CREATE INDEX idx_dailyearn_verification_codes_code ON dailyearn_verification_codes(code);
+
+
+
+-- Add this function to your schema
+CREATE OR REPLACE FUNCTION increment_balance(user_id UUID, amount DECIMAL)
+RETURNS void AS $$
+BEGIN
+  UPDATE dailyearn_users 
+  SET balance = balance + amount,
+      updated_at = NOW()
+  WHERE id = user_id;
+END;
+$$ LANGUAGE plpgsql;

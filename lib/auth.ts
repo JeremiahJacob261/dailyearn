@@ -48,6 +48,11 @@ export const authService = {
 
       if (error) throw error
 
+      // If user has a referral code, process the referral
+      if (data.referralId) {
+        await this.processReferral(data.referralId, newUser.id)
+      }
+
       // Generate verification code
       const verificationCode = Math.floor(10000 + Math.random() * 90000).toString()
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
@@ -84,12 +89,13 @@ export const authService = {
         throw new Error('Invalid email or password')
       }
 
-      // Store user session (you might want to use JWT or session storage)
+      // Store user session
       localStorage.setItem('user', JSON.stringify({
         id: user.id,
         email: user.email,
         fullName: user.full_name,
         referralCode: user.referral_code,
+        balance: user.balance,
       }))
 
       return user
@@ -152,23 +158,38 @@ export const authService = {
     }
   },
 
-  async createReferral(referrerId: string, referredId: string) {
+  async processReferral(referralCode: string, referredUserId: string) {
     try {
-      const { error } = await supabase
+      // Get referrer details
+      const { data: referrer, error: referrerError } = await supabase
+        .from('dailyearn_users')
+        .select('id')
+        .eq('referral_code', referralCode)
+        .single()
+
+      if (referrerError || !referrer) {
+        throw new Error('Invalid referral code')
+      }
+
+      // Create referral record
+      const { error: referralError } = await supabase
         .from('dailyearn_referrals')
         .insert({
-          referrer_id: referrerId,
-          referred_id: referredId,
-          reward_amount: 5.00 // Default referral reward
+          referrer_id: referrer.id,
+          referred_id: referredUserId,
+          reward_amount: 10.00 // 10 naira reward
         })
 
-      if (error) throw error
+      if (referralError) throw referralError
 
-      // Update referrer's balance
-      await supabase
-        .from('dailyearn_users')
-        .update({ balance: supabase.raw('balance + 5.00') })
-        .eq('id', referrerId)
+      // Update referrer's balance - add 10 naira
+      const { error: balanceError } = await supabase
+        .rpc('increment_balance', {
+          user_id: referrer.id,
+          amount: 10.00
+        })
+
+      if (balanceError) throw balanceError
 
       return true
     } catch (error) {
