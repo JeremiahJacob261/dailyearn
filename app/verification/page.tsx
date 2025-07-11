@@ -21,27 +21,29 @@ export default function Verification() {
   }
 
   const handleContinue = async () => {
-    if (verificationCode.length !== 5) {
-      setAlert({ type: 'error', message: 'Please enter the complete verification code' })
-      return
-    }
 
-    setIsLoading(true)
-    setAlert(null)
-
-    try {
-      await authService.verifyEmail(verificationCode)
-      
-      setAlert({ type: 'success', message: 'Email verified successfully!' })
-      
-      setTimeout(() => {
         router.push("/dashboard")
-      }, 1500)
-    } catch (error: any) {
-      setAlert({ type: 'error', message: error.message || 'Failed to verify email' })
-    } finally {
-      setIsLoading(false)
-    }
+    // if (verificationCode.length !== 5) {
+    //   setAlert({ type: 'error', message: 'Please enter the complete verification code' })
+    //   return
+    // }
+
+    // setIsLoading(true)
+    // setAlert(null)
+
+    // try {
+    //   await authService.verifyEmail(verificationCode)
+      
+    //   setAlert({ type: 'success', message: 'Email verified successfully!' })
+      
+    //   setTimeout(() => {
+    //     router.push("/dashboard")
+    //   }, 1500)
+    // } catch (error: any) {
+    //   setAlert({ type: 'error', message: error.message || 'Failed to verify email' })
+    // } finally {
+    //   setIsLoading(false)
+    // }
   }
 
   return (
