@@ -2,10 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import {
+  ChevronRight,
+  CheckSquare,
+  Users,
+  BarChart3,
+  Gift,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileLayout } from "@/components/mobile-layout";
+import Link from "next/link";
 import { BottomNavigation } from "@/components/bottom-navigation";
+import { TaskCard } from "@/components/task-card";
 import { databaseService } from "@/lib/database";
 
 export default function Dashboard() {
@@ -104,47 +112,105 @@ export default function Dashboard() {
       <MobileLayout>
         {/* Balance Section */}
         <div className="px-6 md:px-8 pt-8 md:pt-12 pb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-stone-400 text-lg">Your balance</p>
-              <h1 className="text-white text-4xl md:text-5xl font-bold">
-                ₦{balance.toLocaleString()}
-              </h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-2xl md:text-3xl font-bold">
+                  {userData?.full_name?.charAt(0).toUpperCase() || "U"}
+                </span>
+              </div>
+              <div>
+                <p className="text-stone-400 text-base md:text-lg">
+                  Total balance
+                </p>
+                <p className="text-white text-2xl font-semibold">
+                  ₦ {balance.toLocaleString()}
+                </p>
+              </div>
             </div>
-            <div className="text-right">
-              <p className="text-stone-400 text-sm">Welcome back,</p>
-              <p className="text-white text-lg font-semibold">
-                {userData?.full_name || "User"}
-              </p>
-            </div>
+            <img src="/icons/nexxt.svg" width={24} height={24} />
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="px-6 md:px-8 pb-6">
-          <div className="grid grid-cols-2 gap-4">
-            <Link href="/wallet">
-              <Button className="w-full bg-lime-400 hover:bg-lime-500 text-black font-semibold py-4 rounded-xl">
-                Withdraw
-              </Button>
-            </Link>
-            <Link href="/referrals">
-              <Button className="w-full bg-stone-800 hover:bg-stone-700 text-white font-semibold py-4 rounded-xl">
+        <div className="px-6 md:px-8 pb-8">
+          <div className="flex justify-around">
+            <button
+              onClick={() => router.push("/tasks")}
+              className="flex flex-col items-center gap-2"
+            >
+              <div
+                style={{
+                  width: "61px",
+                  height: "61px",
+                  padding: "10px",
+                  margin: "10px",
+                }}
+                className=" bg-stone-800 rounded-full flex items-center justify-center"
+              >
+                <img src="/icons/task-edit-02.svg" width={24} height={24} />
+              </div>
+              <span className="text-white text-sm md:text-base">Tasks</span>
+            </button>
+            <button
+              onClick={() => router.push("/referrals")}
+              className="flex flex-col items-center gap-2"
+            >
+              <div
+                style={{
+                  width: "61px",
+                  height: "61px",
+                  padding: "10px",
+                  margin: "10px",
+                }}
+                className=" bg-stone-800 rounded-full flex items-center justify-center"
+              >
+                <img src="/icons/_referral.svg" width={24} height={24} />
+              </div>
+              <span className="text-white text-sm md:text-base">
                 Referrals ({referralStats.totalReferrals})
-              </Button>
-            </Link>
+              </span>
+            </button>
+            <button
+              onClick={() => router.push("/wallet")}
+              className="flex flex-col items-center gap-2"
+            >
+              <div
+                style={{
+                  width: "61px",
+                  height: "61px",
+                  padding: "10px",
+                  margin: "10px",
+                }}
+                className=" bg-stone-800 rounded-full flex items-center justify-center"
+              >
+                <img src="/icons/table.svg" width={24} height={24} />
+              </div>
+              <span className="text-white text-sm md:text-base">Wallet</span>
+            </button>
           </div>
         </div>
 
-        {/* Referral Stats */}
-        <div className="px-6 md:px-8 pb-6">
-          <div className="bg-gradient-to-r from-lime-600 to-lime-400 rounded-2xl p-6 text-black">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h2 className="text-2xl font-bold">Referral Earnings</h2>
-                <p className="text-lg">
-                  ₦{referralStats.totalEarnings.toLocaleString()}
+        {/* Referral Card */}
+        <div className="px-6 md:px-8 pb-8">
+          <div className="bg-stone-800 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h3 className="text-white text-xl md:text-2xl font-bold mb-2">
+                  Referral code = free money!
+                </h3>
+                <p className="text-stone-300 text-base md:text-lg mb-2">
+                  Share your referral code and start with extra cash in your
+                  wallet!
                 </p>
+                <p className="text-lime-400 text-sm font-medium mb-4">
+                  Your code: {userData?.referral_code}
+                </p>
+                <Link href="/referrals">
+                  <Button className="bg-lime-400 hover:bg-lime-500 text-black font-semibold rounded-full px-6 py-3">
+                    Share your code
+                  </Button>
+                </Link>
               </div>
               <div className="ml-4">
                 <img
@@ -155,20 +221,8 @@ export default function Dashboard() {
                 />
               </div>
             </div>
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-black opacity-80 mb-2">
-                  Share your referral code and earn ₦10 for each signup!
-                </p>
-                <p className="text-sm font-medium">
-                  Your code: {userData?.referral_code}
-                </p>
-              </div>
-              <Link href="/referrals">
-                <Button className="bg-white text-black hover:bg-stone-100 hover:scale-105 rounded-full px-6 py-2">
-                  Share
-                </Button>
-              </Link>
+            <div className="absolute top-4 right-4">
+              <ChevronRight className="text-stone-600" size={24} />
             </div>
           </div>
         </div>
