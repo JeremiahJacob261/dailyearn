@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronRight,
@@ -14,60 +14,10 @@ import { MobileLayout } from "@/components/mobile-layout";
 import Link from "next/link";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { TaskCard } from "@/components/task-card";
-import { databaseService } from "@/lib/database";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [userData, setUserData] = useState<any>(null);
-  const [balance, setBalance] = useState(0);
-  const [referralStats, setReferralStats] = useState({
-    totalReferrals: 0,
-    totalEarnings: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    loadUserData();
-  }, []);
-
-  const loadUserData = async () => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) {
-        router.push("/signin");
-        return;
-      }
-
-      const user = JSON.parse(storedUser);
-
-      // Fetch fresh user data
-      const freshUserData = await databaseService.getUserData(user.id);
-      if (freshUserData) {
-        setUserData(freshUserData);
-        setBalance(freshUserData.balance);
-
-        // Update localStorage with fresh data
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: freshUserData.id,
-            email: freshUserData.email,
-            fullName: freshUserData.full_name,
-            referralCode: freshUserData.referral_code,
-            balance: freshUserData.balance,
-          })
-        );
-      }
-
-      // Fetch referral stats
-      const stats = await databaseService.getReferralStats(user.id);
-      setReferralStats(stats);
-    } catch (error) {
-      console.error("Error loading user data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [balance] = useState(2000);
 
   const tasks = [
     {
@@ -97,16 +47,6 @@ export default function Dashboard() {
     router.push(`/tasks?task=${taskId}`);
   };
 
-  if (isLoading) {
-    return (
-      <MobileLayout>
-        <div className="flex items-center justify-center h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lime-400"></div>
-        </div>
-      </MobileLayout>
-    );
-  }
-
   return (
     <div className="pb-20">
       <MobileLayout>
@@ -116,7 +56,7 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-2xl md:text-3xl font-bold">
-                  {userData?.full_name?.charAt(0).toUpperCase() || "U"}
+                  0
                 </span>
               </div>
               <div>
@@ -167,14 +107,9 @@ export default function Dashboard() {
               >
                 <img src="/icons/_referral.svg" width={24} height={24} />
               </div>
-              <span className="text-white text-sm md:text-base">
-                Referrals ({referralStats.totalReferrals})
-              </span>
+              <span className="text-white text-sm md:text-base">Referrals</span>
             </button>
-            <button
-              onClick={() => router.push("/wallet")}
-              className="flex flex-col items-center gap-2"
-            >
+            <button className="flex flex-col items-center gap-2">
               <div
                 style={{
                   width: "61px",
@@ -186,7 +121,7 @@ export default function Dashboard() {
               >
                 <img src="/icons/table.svg" width={24} height={24} />
               </div>
-              <span className="text-white text-sm md:text-base">Wallet</span>
+              <span className="text-white text-sm md:text-base">Table</span>
             </button>
           </div>
         </div>
@@ -199,31 +134,30 @@ export default function Dashboard() {
                 <h3 className="text-white text-xl md:text-2xl font-bold mb-2">
                   Referral code = free money!
                 </h3>
-                <p className="text-stone-300 text-base md:text-lg mb-2">
+                <p className="text-stone-300 text-base md:text-lg mb-6">
                   Share your referral code and start with extra cash in your
                   wallet!
                 </p>
-                <p className="text-lime-400 text-sm font-medium mb-4">
-                  Your code: {userData?.referral_code}
-                </p>
                 <Link href="/referrals">
-                  <Button className="bg-lime-400 hover:bg-lime-500 text-black font-semibold rounded-full px-6 py-3">
-                    Share your code
+                  <Button className="bg-white text-black hover:bg-stone-100 hover:scale-105 rounded-full px-6 py-2">
+                    How it works
                   </Button>
                 </Link>
               </div>
               <div className="ml-4">
                 <img
-                  src="/icons/gift.svg"
-                  width={40}
-                  height={40}
-                  alt="gift"
+                  src="/icons/loading.svg"
+                  width={24}
+                  height={24}
+                  alt="dollar"
                 />
               </div>
             </div>
-            <div className="absolute top-4 right-4">
-              <ChevronRight className="text-stone-600" size={24} />
-            </div>
+            <img
+              src="/icons/gift.svg"
+              alt="gift"
+              className="absolute bottom-0 right-0 w-auto h-auto"
+            />
           </div>
         </div>
 
@@ -232,38 +166,17 @@ export default function Dashboard() {
           <h2 className="text-white text-2xl font-semibold leading-[150%]">
             Your tasks
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {tasks.map((task) => (
-              <div
+              <TaskCard
                 key={task.id}
-                onClick={() => handleTaskClick(task.id)}
-                className="bg-stone-900 rounded-xl p-4 cursor-pointer hover:bg-stone-800 transition-colors"
-              >
-                <div className="flex justify-between items-center">
-                  <div className="flex-1">
-                    <h3 className="text-white text-lg font-semibold mb-1">
-                      {task.title}
-                    </h3>
-                    <p className="text-stone-400 text-sm mb-2">
-                      {task.description}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm">
-                      <span className="text-lime-400 font-medium">
-                        {task.reward}
-                      </span>
-                      <span className="text-stone-400">{task.duration}</span>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <img
-                      src="/icons/arrow-right.svg"
-                      width={20}
-                      height={20}
-                      alt="arrow"
-                    />
-                  </div>
-                </div>
-              </div>
+                id={task.id}
+                title={task.title}
+                description={task.description}
+                reward={task.reward}
+                duration={task.duration}
+                onTaskClick={handleTaskClick}
+              />
             ))}
           </div>
         </div>
