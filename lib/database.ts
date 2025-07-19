@@ -36,6 +36,7 @@ export interface TaskData {
   description: string;
   reward: number;
   duration: string;
+  link: string;
   created_at: string;
   updated_at: string;
 }
@@ -230,6 +231,20 @@ export const databaseService = {
     } catch (error) {
       console.error('Error fetching task:', error);
       return null;
+    }
+  },
+
+  async getAllUsers(): Promise<UserData[]> {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_users')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      return [];
     }
   }
 }

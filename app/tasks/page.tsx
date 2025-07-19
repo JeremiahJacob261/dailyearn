@@ -18,6 +18,11 @@ export default function Tasks() {
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // New state for active/completed/timer
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [taskTimers, setTaskTimers] = useState<{ [taskId: string]: number }>({});
+  const [completedTaskIds, setCompletedTaskIds] = useState<{ [taskId: string]: boolean }>({});
+
   useEffect(() => {
     loadTasks();
   }, []);
@@ -33,23 +38,35 @@ export default function Tasks() {
     }
   };
 
+  // Timer effect
   useEffect(() => {
-    const taskId = searchParams.get("task")
-    if (taskId) {
-      // Simulate task completion
-      setTimeout(() => {
-        setCompletedTask("₦2.00")
-        setShowSuccess(true)
-        setTimeout(() => setShowSuccess(false), 5000)
-      }, 1000)
-    }
-  }, [searchParams])
+    if (!activeTaskId) return;
+    if (taskTimers[activeTaskId] === 0) return;
+    if (taskTimers[activeTaskId] === undefined) return;
+    const interval = setInterval(() => {
+      setTaskTimers((prev) => ({
+        ...prev,
+        [activeTaskId]: Math.max(0, (prev[activeTaskId] || 0) - 1),
+      }));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [activeTaskId, taskTimers]);
 
-  const handleTaskClick = (taskId: string) => {
-    const task = tasks.find((t) => t.id === taskId);
-    setCompletedTask(task ? `₦${task.reward.toFixed(2)}` : "₦0.00");
+  // Start Task handler
+  const handleStartTask = (task: TaskData) => {
+    setActiveTaskId(task.id);
+    setTaskTimers((prev) => ({ ...prev, [task.id]: 10 })); // 10s timer
+    window.open(task.link, '_blank');
+  };
+
+  // Complete Task handler
+  const handleCompleteTask = async (task: TaskData) => {
+    // TODO: Call backend API to mark as complete and increment balance
+    setCompletedTaskIds((prev) => ({ ...prev, [task.id]: true }));
+    setCompletedTask(`₦${task.reward.toFixed(2)}`);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 5000);
+    setActiveTaskId(null);
   };
 
   return (
@@ -60,7 +77,6 @@ export default function Tasks() {
           onClose={() => setShowSuccess(false)}
         />
       )}
-
       <MobileLayout>
         {/* Header */}
         <div className="flex items-center gap-4 px-6 md:px-8 pt-8 md:pt-12 pb-6">
@@ -119,7 +135,12 @@ export default function Tasks() {
                   description={task.description}
                   reward={`₦${task.reward.toFixed(2)}`}
                   duration={task.duration}
-                  onTaskClick={() => handleTaskClick(task.id)}
+                  link={task.link}
+                  isActive={activeTaskId === task.id}
+                  isCompleted={!!completedTaskIds[task.id]}
+                  timer={taskTimers[task.id] || 0}
+                  onStart={() => handleStartTask(task)}
+                  onComplete={() => handleCompleteTask(task)}
                 />
               ))}
             </div>
