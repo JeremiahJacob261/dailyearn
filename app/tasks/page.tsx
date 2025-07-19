@@ -8,19 +8,30 @@ import { MobileLayout } from "@/components/mobile-layout"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { TaskCard } from "@/components/task-card"
 import { SuccessNotification } from "@/components/success-notification"
+import { databaseService, TaskData } from "@/lib/database";
 
 export default function Tasks() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [showSuccess, setShowSuccess] = useState(false)
   const [completedTask, setCompletedTask] = useState<string | null>(null)
+  const [tasks, setTasks] = useState<TaskData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const tasks = [
-    { id: 1, title: "Task 1", description: "Watch ad and earn", reward: "₦2.00", duration: "10 seconds" },
-    { id: 2, title: "Task 2", description: "Watch ad and earn", reward: "₦2.00", duration: "10 seconds" },
-    { id: 3, title: "Task 3", description: "Watch ad and earn", reward: "₦2.00", duration: "10 seconds" },
-    { id: 4, title: "Task 4", description: "Watch ad and earn", reward: "₦2.00", duration: "10 seconds" },
-  ]
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    try {
+      const dbTasks = await databaseService.getAllTasks();
+      setTasks(dbTasks);
+    } catch (error) {
+      console.error("Error loading tasks:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const taskId = searchParams.get("task")
@@ -34,12 +45,12 @@ export default function Tasks() {
     }
   }, [searchParams])
 
-  const handleTaskClick = (taskId: number) => {
-    // Simulate starting a task
-    setCompletedTask("₦2.00")
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 5000)
-  }
+  const handleTaskClick = (taskId: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    setCompletedTask(task ? `₦${task.reward.toFixed(2)}` : "₦0.00");
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 5000);
+  };
 
   return (
     <div className="pb-20">
@@ -94,19 +105,25 @@ export default function Tasks() {
         {/* Your Tasks */}
         <div className="px-6 md:px-8 pb-8">
           <h2 className="text-white text-2xl md:text-3xl font-semibold mb-6">Your tasks</h2>
-          <div className="space-y-4">
-            {tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                id={task.id}
-                title={task.title}
-                description={task.description}
-                reward={task.reward}
-                duration={task.duration}
-                onTaskClick={handleTaskClick}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="text-center text-gray-400">Loading...</div>
+          ) : tasks.length === 0 ? (
+            <div className="text-center text-gray-400">No tasks available.</div>
+          ) : (
+            <div className="space-y-4">
+              {tasks.map((task, idx) => (
+                <TaskCard
+                  key={task.id}
+                  id={idx}
+                  title={task.title}
+                  description={task.description}
+                  reward={`₦${task.reward.toFixed(2)}`}
+                  duration={task.duration}
+                  onTaskClick={() => handleTaskClick(task.id)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </MobileLayout>
       <BottomNavigation />

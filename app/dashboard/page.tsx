@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronRight,
@@ -14,36 +14,42 @@ import { MobileLayout } from "@/components/mobile-layout";
 import Link from "next/link";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { TaskCard } from "@/components/task-card";
+import { databaseService, UserData, TaskData } from "@/lib/database";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [balance] = useState(2000);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [balance, setBalance] = useState(0);
+  const [tasks, setTasks] = useState<TaskData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const tasks = [
-    {
-      id: 1,
-      title: "Task 1",
-      description: "Watch ad and earn",
-      reward: "₦2.00",
-      duration: "10 seconds",
-    },
-    {
-      id: 2,
-      title: "Task 2",
-      description: "Watch ad and earn",
-      reward: "₦2.00",
-      duration: "10 seconds",
-    },
-    {
-      id: 3,
-      title: "Task 3",
-      description: "Watch ad and earn",
-      reward: "₦2.00",
-      duration: "10 seconds",
-    },
-  ];
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
 
-  const handleTaskClick = (taskId: number) => {
+  const loadDashboardData = async () => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        router.push("/signin");
+        return;
+      }
+      const user = JSON.parse(storedUser);
+      const freshUserData = await databaseService.getUserData(user.id);
+      if (freshUserData) {
+        setUserData(freshUserData);
+        setBalance(freshUserData.balance);
+      }
+      const dbTasks = await databaseService.getAllTasks();
+      setTasks(dbTasks);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTaskClick = (taskId: string) => {
     router.push(`/tasks?task=${taskId}`);
   };
 
@@ -53,10 +59,14 @@ export default function Dashboard() {
         {/* Balance Section */}
         <div className="px-6 md:px-8 pt-8 md:pt-12 pb-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <button
+              className="flex items-center gap-4 focus:outline-none"
+              style={{ background: "none", border: "none", padding: 0, margin: 0 }}
+              onClick={() => router.push("/profile")}
+            >
               <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-500 rounded-full flex items-center justify-center">
                 <span className="text-white text-2xl md:text-3xl font-bold">
-                  0
+                  $
                 </span>
               </div>
               <div>
@@ -67,8 +77,8 @@ export default function Dashboard() {
                   ₦ {balance.toLocaleString()}
                 </p>
               </div>
-            </div>
-            <img src="/icons/nexxt.svg" width={24} height={24} />
+            </button>
+            <img src="/icons/nexxt.svg" width={24} height={24}  onClick={() => router.push("/profile")}/>
           </div>
         </div>
 
@@ -166,19 +176,25 @@ export default function Dashboard() {
           <h2 className="text-white text-2xl font-semibold leading-[150%]">
             Your tasks
           </h2>
-          <div className="space-y-6">
-            {tasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                id={task.id}
-                title={task.title}
-                description={task.description}
-                reward={task.reward}
-                duration={task.duration}
-                onTaskClick={handleTaskClick}
-              />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="text-center text-gray-400">Loading...</div>
+          ) : tasks.length === 0 ? (
+            <div className="text-center text-gray-400">No tasks available.</div>
+          ) : (
+            <div className="space-y-6">
+              {tasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  id={task.id}
+                  title={task.title}
+                  description={task.description}
+                  reward={`₦${task.reward.toFixed(2)}`}
+                  duration={task.duration}
+                  onTaskClick={handleTaskClick}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </MobileLayout>
       <BottomNavigation />

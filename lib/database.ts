@@ -30,6 +30,16 @@ export interface TransactionData {
   created_at: string
 }
 
+export interface TaskData {
+  id: string;
+  title: string;
+  description: string;
+  reward: number;
+  duration: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const databaseService = {
   async getUserData(userId: string): Promise<UserData | null> {
     try {
@@ -130,6 +140,96 @@ export const databaseService = {
     } catch (error) {
       console.error('Error fetching top referrers:', error)
       return []
+    }
+  },
+
+  async createPayoutRequest({ userId, fullName, accountName, accountNumber, bank, amount }: {
+    userId: string,
+    fullName: string,
+    accountName: string,
+    accountNumber: string,
+    bank: string,
+    amount: number
+  }) {
+    try {
+      // Insert payout request
+      const { data, error } = await supabase
+        .from('dailyearn_payouts')
+        .insert({
+          user_id: userId,
+          full_name: fullName,
+          account_name: accountName,
+          account_number: accountNumber,
+          bank,
+          amount,
+          status: 'pending',
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating payout request:', error);
+      throw error;
+    }
+  },
+
+  async getUserPayouts(userId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_payouts')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching user payouts:', error);
+      return [];
+    }
+  },
+
+  async deductUserBalance(userId: string, amount: number) {
+    try {
+      // Use negative value to decrement
+      const { error } = await supabase.rpc('increment_balance', {
+        user_id: userId,
+        amount: -Math.abs(amount),
+      });
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error deducting user balance:', error);
+      throw error;
+    }
+  },
+
+  async getAllTasks(): Promise<TaskData[]> {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_tasks')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      return [];
+    }
+  },
+
+  async getTaskById(taskId: string): Promise<TaskData | null> {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_tasks')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching task:', error);
+      return null;
     }
   }
 }

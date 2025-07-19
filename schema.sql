@@ -38,7 +38,6 @@ CREATE INDEX idx_dailyearn_verification_codes_user_id ON dailyearn_verification_
 CREATE INDEX idx_dailyearn_verification_codes_code ON dailyearn_verification_codes(code);
 
 
-
 -- Add this function to your schema
 CREATE OR REPLACE FUNCTION increment_balance(user_id UUID, amount DECIMAL)
 RETURNS void AS $$
@@ -49,3 +48,28 @@ BEGIN
   WHERE id = user_id;
 END;
 $$ LANGUAGE plpgsql;
+
+
+CREATE TABLE dailyearn_payouts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES dailyearn_users(id) ON DELETE CASCADE,
+  full_name VARCHAR(255) NOT NULL,
+  account_name VARCHAR(255) NOT NULL,
+  account_number VARCHAR(20) NOT NULL,
+  bank VARCHAR(100) NOT NULL,
+  amount DECIMAL(10, 2) NOT NULL,
+  status VARCHAR(20) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create tasks table
+drop table if exists dailyearn_tasks cascade;
+CREATE TABLE dailyearn_tasks (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  reward DECIMAL(10, 2) NOT NULL,
+  duration VARCHAR(50),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);

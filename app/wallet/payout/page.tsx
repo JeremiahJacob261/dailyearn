@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -10,12 +10,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MobileLayout } from "@/components/mobile-layout"
 import { PayoutSuccess } from "@/components/payout-success"
+import { databaseService } from "@/lib/database"
+import { useToast } from "@/hooks/use-toast"
 
 export default function PayoutRequest() {
   const router = useRouter()
+  const { toast } = useToast();
   const [showSuccess, setShowSuccess] = useState(false)
-  const [availableAmount] = useState(5000)
-  const [payoutAmount, setPayoutAmount] = useState("4500")
+  const [availableAmount, setAvailableAmount] = useState(0)
+  const [payoutAmount, setPayoutAmount] = useState(0)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [formData, setFormData] = useState({
     fullName: "",
     accountName: "",
@@ -23,9 +28,61 @@ export default function PayoutRequest() {
     bank: "Opay",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setShowSuccess(true)
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
+      router.push("/signin");
+      return;
+    }
+    const user = JSON.parse(storedUser);
+    setUserId(user.id);
+    loadUserData(user.id);
+  }, [])
+
+  const loadUserData = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const user = await databaseService.getUserData(id);
+      if (user) {
+        setAvailableAmount(user.balance);
+        setPayoutAmount(Math.min(user.balance, 5000));
+        setFormData((prev) => ({ ...prev, fullName: user.full_name }));
+      }
+    } catch (error) {
+      toast({ title: "Failed to load user data", description: String(error), variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId) return;
+    if (availableAmount < 3000) {
+      toast({ title: "Insufficient balance", description: "Minimum payout is ₦3000.", variant: "destructive" });
+      return;
+    }
+    if (payoutAmount < 3000) {
+      toast({ title: "Invalid payout amount", description: "Minimum payout is ₦3000.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await databaseService.createPayoutRequest({
+        userId,
+        fullName: formData.fullName,
+        accountName: formData.accountName,
+        accountNumber: formData.accountNumber,
+        bank: formData.bank,
+        amount: payoutAmount,
+      });
+      await databaseService.deductUserBalance(userId, payoutAmount);
+      setShowSuccess(true);
+    } catch (error) {
+      toast({ title: "Payout failed", description: String(error), variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const handleSuccessContinue = () => {
@@ -35,6 +92,16 @@ export default function PayoutRequest() {
 
   if (showSuccess) {
     return <PayoutSuccess onContinue={handleSuccessContinue} />
+  }
+
+  if (isLoading) {
+    return (
+      <MobileLayout>
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lime-400"></div>
+        </div>
+      </MobileLayout>
+    );
   }
 
   return (
@@ -128,7 +195,21 @@ export default function PayoutRequest() {
             Amount (available for payout ₦{availableAmount.toLocaleString()})
           </Label>
           <div className="flex items-center">
-            <span className="text-lime-400 text-6xl md:text-7xl font-bold">{payoutAmount}</span>
+            <input
+              type="number"
+              min={0}
+              max={availableAmount}
+              value={payoutAmount}
+              onChange={e => {
+                let val = Number(e.target.value);
+                if (val > availableAmount) val = availableAmount;
+                if (val < 0) val = 0;
+                setPayoutAmount(val);
+              }}
+              className="bg-transparent border-none outline-none text-lime-400 text-6xl md:text-7xl font-bold w-auto focus:ring-0 focus:outline-none p-0 m-0 appearance-none"
+              style={{ width: `${Math.max(4, payoutAmount.toString().length)}ch` }}
+              required
+            />
             <span className="text-gray-400 text-4xl md:text-5xl font-bold ml-2">NGN</span>
           </div>
         </div>
@@ -141,6 +222,7 @@ export default function PayoutRequest() {
           <Button
             type="submit"
             className="w-full h-14 md:h-16 bg-lime-400 hover:bg-lime-500 text-black font-semibold text-lg md:text-xl rounded-2xl"
+            disabled={availableAmount < 3000 || isLoading}
           >
             Continue
           </Button>
