@@ -17,8 +17,33 @@ import {
   Eye,
   Plus,
   Activity,
-  DollarSign
+  DollarSign,
+  RefreshCw
 } from "lucide-react"
+
+// Utility function to format relative time
+function formatRelativeTime(timestamp: string): string {
+  const now = new Date()
+  const time = new Date(timestamp)
+  const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000)
+  
+  if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`
+  
+  return time.toLocaleDateString()
+}
+
+interface ActivityItem {
+  id: string
+  type: 'user_registered' | 'task_completed' | 'payout_processed' | 'payout_requested'
+  message: string
+  timestamp: string
+  user?: string
+  color: string
+  bgColor: string
+}
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -30,35 +55,120 @@ export default function AdminDashboard() {
     verifiedUsers: 0,
     loading: true,
   })
+  
+  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
+  const [activityLoading, setActivityLoading] = useState(true)
+
+  const refreshData = async () => {
+    await Promise.all([fetchStats(), fetchRecentActivity()])
+  }
+  
+  const fetchStats = async () => {
+    setStats(s => ({ ...s, loading: true }))
+    try {
+      const users = await databaseService.getAllUsers()
+      const tasks = await databaseService.getAllTasks()
+      const { data: payouts } = await supabase
+        .from('dailyearn_payouts')
+        .select('*')
+      const pendingPayouts = payouts?.filter(p => p.status === 'pending').length || 0
+      const verifiedUsers = users.filter(u => u.email_verified).length
+      const earnings = users.reduce((sum, u) => sum + (u.balance || 0), 0)
+      
+      setStats({
+        users: users.length,
+        payouts: payouts ? payouts.length : 0,
+        earnings,
+        tasks: tasks.length,
+        pendingPayouts,
+        verifiedUsers,
+        loading: false,
+      })
+    } catch (error) {
+      console.error('Error fetching stats:', error)
+      setStats(s => ({ ...s, loading: false }))
+    }
+  }
+  
+  const fetchRecentActivity = async () => {
+    setActivityLoading(true)
+    try {
+      const activities: ActivityItem[] = []
+      
+      // Get recent users (last 7 days)
+      const { data: recentUsers } = await supabase
+        .from('dailyearn_users')
+        .select('full_name, created_at')
+        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order('created_at', { ascending: false })
+        .limit(5)
+      
+      if (recentUsers) {
+        recentUsers.forEach(user => {
+          activities.push({
+            id: `user_${user.created_at}`,
+            type: 'user_registered',
+            message: `${user.full_name} joined the platform`,
+            timestamp: user.created_at,
+            user: user.full_name,
+            color: 'bg-green-500',
+            bgColor: 'bg-green-50 border-green-100'
+          })
+        })
+      }
+      
+      // Get recent payouts (last 7 days)
+      const { data: recentPayouts } = await supabase
+        .from('dailyearn_payouts')
+        .select(`
+          *,
+          user:dailyearn_users!user_id(full_name)
+        `)
+        .gte('requested_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order('requested_at', { ascending: false })
+        .limit(5)
+      
+      if (recentPayouts) {
+        recentPayouts.forEach(payout => {
+          const user = payout.user as any
+          if (payout.status === 'completed') {
+            activities.push({
+              id: `payout_completed_${payout.id}`,
+              type: 'payout_processed',
+              message: `Payout of ₦${payout.amount.toLocaleString()} processed for ${user?.full_name || 'User'}`,
+              timestamp: payout.processed_at || payout.requested_at,
+              user: user?.full_name,
+              color: 'bg-purple-500',
+              bgColor: 'bg-purple-50 border-purple-100'
+            })
+          } else if (payout.status === 'pending') {
+            activities.push({
+              id: `payout_requested_${payout.id}`,
+              type: 'payout_requested',
+              message: `New payout request of ₦${payout.amount.toLocaleString()} from ${user?.full_name || 'User'}`,
+              timestamp: payout.requested_at,
+              user: user?.full_name,
+              color: 'bg-yellow-500',
+              bgColor: 'bg-yellow-50 border-yellow-200'
+            })
+          }
+        })
+      }
+      
+      // Sort activities by timestamp (most recent first)
+      activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      
+      setRecentActivity(activities.slice(0, 5))
+    } catch (error) {
+      console.error('Error fetching recent activity:', error)
+    } finally {
+      setActivityLoading(false)
+    }
+  }
 
   useEffect(() => {
-    async function fetchStats() {
-      setStats(s => ({ ...s, loading: true }))
-      try {
-        const users = await databaseService.getAllUsers()
-        const tasks = await databaseService.getAllTasks()
-        const { data: payouts } = await supabase
-          .from('dailyearn_payouts')
-          .select('*')
-        const pendingPayouts = payouts?.filter(p => p.status === 'pending').length || 0
-        const verifiedUsers = users.filter(u => u.email_verified).length
-        const earnings = users.reduce((sum, u) => sum + (u.balance || 0), 0)
-        
-        setStats({
-          users: users.length,
-          payouts: payouts ? payouts.length : 0,
-          earnings,
-          tasks: tasks.length,
-          pendingPayouts,
-          verifiedUsers,
-          loading: false,
-        })
-      } catch (error) {
-        console.error('Error fetching stats:', error)
-        setStats(s => ({ ...s, loading: false }))
-      }
-    }
     fetchStats()
+    fetchRecentActivity()
   }, [])
 
   const statCards = [
@@ -114,6 +224,16 @@ export default function AdminDashboard() {
           <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
             <Calendar className="w-4 h-4 mr-2" />
             Last 30 days
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refreshData}
+            disabled={stats.loading || activityLoading}
+            className="border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${stats.loading || activityLoading ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
           <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
             <Eye className="w-4 h-4 mr-2" />
@@ -204,35 +324,38 @@ export default function AdminDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-100">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">New user registered</p>
-                <p className="text-xs text-gray-600">2 minutes ago</p>
+            {activityLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
               </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">Task completed</p>
-                <p className="text-xs text-gray-600">5 minutes ago</p>
+            ) : recentActivity.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-600">No recent activity</p>
+                <p className="text-sm text-gray-500">Activity will appear here as users interact with the platform</p>
               </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">Payout processed</p>
-                <p className="text-xs text-gray-600">10 minutes ago</p>
-              </div>
-            </div>
+            ) : (
+              recentActivity.map((activity) => (
+                <div key={activity.id} className={`flex items-center space-x-3 p-3 ${activity.bgColor} rounded-lg border`}>
+                  <div className={`w-2 h-2 ${activity.color} rounded-full`}></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                    <p className="text-xs text-gray-600">
+                      {formatRelativeTime(activity.timestamp)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+            
+            {/* Show pending payouts warning if any */}
             {stats.pendingPayouts > 0 && (
-              <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200 mt-4">
                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">
-                    {stats.pendingPayouts} pending payout{stats.pendingPayouts > 1 ? 's' : ''}
+                    {stats.pendingPayouts} pending payout{stats.pendingPayouts > 1 ? 's' : ''} require attention
                   </p>
-                  <p className="text-xs text-gray-600">Requires attention</p>
+                  <p className="text-xs text-gray-600">Review and process pending payments</p>
                 </div>
               </div>
             )}

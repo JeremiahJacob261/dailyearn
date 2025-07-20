@@ -1,9 +1,14 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { SidebarNav } from "@/components/admin/sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Bell, Search, Settings, User } from "lucide-react"
+import { Bell, Search, Settings, User, LogOut } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { adminAuthService } from '@/lib/auth'
 
 const sidebarNavItems = [
   {
@@ -29,6 +34,61 @@ interface SettingsLayoutProps {
 }
 
 export default function AdminLayout({ children }: SettingsLayoutProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [adminSession, setAdminSession] = useState<any>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const isLoginPage = pathname === '/admin/login'
+      
+      if (isLoginPage) {
+        setIsLoading(false)
+        return
+      }
+
+      const authenticated = adminAuthService.isAuthenticated()
+      if (!authenticated) {
+        router.push('/admin/login')
+        return
+      }
+
+      const session = adminAuthService.getSession()
+      setAdminSession(session)
+      setIsAuthenticated(true)
+      setIsLoading(false)
+    }
+
+    checkAuth()
+  }, [pathname, router])
+
+  const handleLogout = async () => {
+    await adminAuthService.signOut()
+    router.push('/admin/login')
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // If on login page, render without layout
+  if (pathname === '/admin/login') {
+    return <>{children}</>
+  }
+
+  // If not authenticated and not on login page, this shouldn't happen due to redirect
+  if (!isAuthenticated) {
+    return null
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       {/* Mobile Header */}
@@ -81,8 +141,17 @@ export default function AdminLayout({ children }: SettingsLayoutProps) {
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 <Settings className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <User className="w-4 h-4" />
+                <span>{adminSession?.username}</span>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleLogout}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </div>

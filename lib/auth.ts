@@ -13,6 +13,11 @@ export interface SignInData {
   password: string
 }
 
+export interface AdminSignInData {
+  username: string
+  password: string
+}
+
 export const authService = {
   async signUp(data: SignUpData) {
     try {
@@ -194,6 +199,78 @@ export const authService = {
       return true
     } catch (error) {
       throw error
+    }
+  }
+}
+
+// Admin credentials - in production, store this in environment variables
+const ADMIN_CREDENTIALS = {
+  username: 'admin',
+  // Pre-hashed password for 'dailyearn'
+  passwordHash: '$2b$10$4SqWhZyANghRPxWCJ1Bx0.fFMo7RA86KNFoFJQR.3TZU0E5UBNUKe'
+}
+
+export const adminAuthService = {
+  async signIn(data: AdminSignInData) {
+    try {
+      // Check username
+      if (data.username !== ADMIN_CREDENTIALS.username) {
+        throw new Error('Invalid username or password')
+      }
+
+      // Verify password
+      const isValidPassword = await bcrypt.compare(data.password, ADMIN_CREDENTIALS.passwordHash)
+      
+      if (!isValidPassword) {
+        throw new Error('Invalid username or password')
+      }
+
+      // Store admin session
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('adminSession', JSON.stringify({
+          username: data.username,
+          role: 'admin',
+          loginTime: new Date().toISOString()
+        }))
+      }
+
+      return { success: true, admin: { username: data.username, role: 'admin' } }
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async signOut() {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('adminSession')
+    }
+    return { success: true }
+  },
+
+  isAuthenticated() {
+    if (typeof window === 'undefined') return false
+    
+    const session = localStorage.getItem('adminSession')
+    if (!session) return false
+    
+    try {
+      const adminData = JSON.parse(session)
+      return adminData.username === ADMIN_CREDENTIALS.username
+    } catch {
+      return false
+    }
+  },
+
+  getSession() {
+    if (typeof window === 'undefined') return null
+    
+    const session = localStorage.getItem('adminSession')
+    if (!session) return null
+    
+    try {
+      return JSON.parse(session)
+    } catch {
+      return null
     }
   }
 }

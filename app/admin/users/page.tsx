@@ -41,7 +41,8 @@ import {
   Calendar,
   DollarSign,
   UserCheck,
-  RefreshCw
+  RefreshCw,
+  TrendingUp
 } from "lucide-react"
 
 interface UserData {
@@ -52,6 +53,8 @@ interface UserData {
   email_verified: boolean
   referral_code: string
   created_at: string
+  total_referrals?: number
+  referral_earnings?: number
 }
 
 interface UserDetailsModalProps {
@@ -93,7 +96,7 @@ function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
           </div>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <Card className="border border-gray-200 bg-white">
               <CardContent className="p-4 text-center">
                 <DollarSign className="w-8 h-8 text-green-600 mx-auto mb-2" />
@@ -125,6 +128,13 @@ function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
                 <p className="text-sm text-gray-600">Referral Code</p>
               </CardContent>
             </Card>
+            <Card className="border border-gray-200 bg-white">
+              <CardContent className="p-4 text-center">
+                <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                <p className="text-lg font-semibold text-gray-900">{user.total_referrals || 0}</p>
+                <p className="text-sm text-gray-600">Referrals</p>
+              </CardContent>
+            </Card>
           </div>
           
           {/* Additional Information */}
@@ -137,10 +147,12 @@ function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
                   <span className="text-gray-900 font-mono">{user.id}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Account Type:</span>
-                  <Badge className={user.email_verified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
-                    {user.email_verified ? "Verified User" : "Pending Verification"}
-                  </Badge>
+                  <span className="text-gray-600">Referral Earnings:</span>
+                  <span className="text-gray-900">₦{(user.referral_earnings || 0).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Referrals:</span>
+                  <span className="text-gray-900">{user.total_referrals || 0}</span>
                 </div>
               </div>
               <div className="space-y-2">
@@ -152,9 +164,38 @@ function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
                   <span className="text-gray-600">Last Active:</span>
                   <span className="text-gray-500">Recently</span>
                 </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Account Type:</span>
+                  <Badge className={user.email_verified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
+                    {user.email_verified ? "Verified User" : "Pending Verification"}
+                  </Badge>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Referral Performance */}
+          {(user.total_referrals || 0) > 0 && (
+            <div className="space-y-3">
+              <h4 className="font-medium text-gray-900 border-b border-gray-200 pb-2">Referral Performance</h4>
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold text-purple-600">{user.total_referrals || 0}</p>
+                    <p className="text-sm text-gray-600">Total Referrals</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-green-600">₦{(user.referral_earnings || 0).toLocaleString()}</p>
+                    <p className="text-sm text-gray-600">Earnings</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-blue-600">₦{((user.referral_earnings || 0) / Math.max(user.total_referrals || 1, 1)).toFixed(0)}</p>
+                    <p className="text-sm text-gray-600">Avg per Referral</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Quick Actions */}
           <div className="flex gap-2 pt-4 border-t border-gray-200">
@@ -167,7 +208,8 @@ function UserDetailsModal({ user, onClose }: UserDetailsModalProps) {
               View Activity
             </Button>
             <Button variant="outline" size="sm" className="border-gray-300 text-gray-700">
-              Edit User
+              <Users className="w-4 h-4 mr-2" />
+              View Referrals
             </Button>
           </div>
         </div>
@@ -193,8 +235,30 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     setLoading(true)
     try {
-      const all = await databaseService.getAllUsers()
-      setUsers(all)
+      const allUsers = await databaseService.getAllUsers()
+      
+      // Fetch referral stats for each user
+      const usersWithReferrals = await Promise.all(
+        allUsers.map(async (user) => {
+          try {
+            const referralStats = await databaseService.getReferralStats(user.id)
+            return {
+              ...user,
+              total_referrals: referralStats.totalReferrals,
+              referral_earnings: referralStats.totalEarnings
+            }
+          } catch (error) {
+            console.error(`Error fetching referrals for user ${user.id}:`, error)
+            return {
+              ...user,
+              total_referrals: 0,
+              referral_earnings: 0
+            }
+          }
+        })
+      )
+      
+      setUsers(usersWithReferrals)
     } catch (error) {
       console.error('Error fetching users:', error)
     } finally {
@@ -231,6 +295,8 @@ export default function AdminUsersPage() {
   const totalPages = Math.ceil(filtered.length / USERS_PER_PAGE)
   const verifiedUsers = users.filter(u => u.email_verified).length
   const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0)
+  const totalReferrals = users.reduce((sum, u) => sum + (u.total_referrals || 0), 0)
+  const totalReferralEarnings = users.reduce((sum, u) => sum + (u.referral_earnings || 0), 0)
 
   return (
     <div className="space-y-6">
@@ -249,7 +315,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="bg-white border-gray-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -278,22 +344,34 @@ export default function AdminUsersPage() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Unverified Users</p>
-                <p className="text-2xl font-bold text-gray-900">{users.length - verifiedUsers}</p>
-              </div>
-              <Mail className="w-8 h-8 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-white border-gray-200">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
                 <p className="text-sm font-medium text-gray-600">Total Balance</p>
                 <p className="text-2xl font-bold text-gray-900">₦{totalBalance.toLocaleString()}</p>
               </div>
               <DollarSign className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white border-gray-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Referrals</p>
+                <p className="text-2xl font-bold text-gray-900">{totalReferrals}</p>
+              </div>
+              <UserCheck className="w-8 h-8 text-indigo-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white border-gray-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Referral Earnings</p>
+                <p className="text-2xl font-bold text-gray-900">₦{totalReferralEarnings.toLocaleString()}</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-emerald-600" />
             </div>
           </CardContent>
         </Card>
@@ -350,6 +428,7 @@ export default function AdminUsersPage() {
                     <TableHead className="text-gray-700">User</TableHead>
                     <TableHead className="text-gray-700">Email</TableHead>
                     <TableHead className="text-gray-700">Balance</TableHead>
+                    <TableHead className="text-gray-700">Referrals</TableHead>
                     <TableHead className="text-gray-700">Status</TableHead>
                     <TableHead className="text-gray-700">Joined</TableHead>
                     <TableHead className="text-gray-700">Actions</TableHead>
@@ -374,6 +453,12 @@ export default function AdminUsersPage() {
                       <TableCell className="text-gray-900">{user.email}</TableCell>
                       <TableCell>
                         <span className="font-medium text-gray-900">₦{user.balance.toLocaleString()}</span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-900">{user.total_referrals || 0}</span>
+                          <span className="text-xs text-gray-500">₦{(user.referral_earnings || 0).toLocaleString()} earned</span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Badge className={user.email_verified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}>
@@ -405,7 +490,9 @@ export default function AdminUsersPage() {
                   <p className="text-sm text-gray-500">
                     {statusFilter !== "all" 
                       ? `No ${statusFilter} users match your search`
-                      : "Try adjusting your search criteria"
+                      : search 
+                        ? "Try adjusting your search criteria"
+                        : "Users will appear here when they register"
                     }
                   </p>
                 </div>
