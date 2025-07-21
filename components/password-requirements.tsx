@@ -8,11 +8,7 @@ interface PasswordRequirementsProps {
 
 export function PasswordRequirements({ password }: PasswordRequirementsProps) {
   const requirements = [
-    { label: "Uppercase", test: /[A-Z]/.test(password) },
-    { label: "Lowercase", test: /[a-z]/.test(password) },
-    { label: "Special character", test: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
-    { label: "Digit", test: /\d/.test(password) },
-    { label: "Minimum of 9 characters", test: password.length >= 9 },
+    { label: "Exactly 6 digits", test: password.length === 6 && /^\d{6}$/.test(password) },
   ]
 
   return (

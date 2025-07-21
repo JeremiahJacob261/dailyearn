@@ -17,13 +17,27 @@ export default function Tasks() {
   const [lastReward, setLastReward] = useState<string | null>(null)
   const [tasks, setTasks] = useState<TaskData[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
 
   const [activeTask, setActiveTask] = useState<TaskData | null>(null)
   const [completedTaskIds, setCompletedTaskIds] = useState<{ [taskId: string]: boolean }>({})
 
   useEffect(() => {
+    // Get current user from localStorage
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      const user = JSON.parse(storedUser)
+      setUserId(user.id)
+    }
     loadTasks()
   }, [])
+
+  useEffect(() => {
+    // Load completed tasks when userId is available
+    if (userId) {
+      loadCompletedTasks()
+    }
+  }, [userId])
 
   const loadTasks = async () => {
     try {
@@ -37,24 +51,52 @@ export default function Tasks() {
     }
   }
 
+  const loadCompletedTasks = async () => {
+    if (!userId) return
+    try {
+      const completedTaskIds = await databaseService.getUserCompletedTasks(userId)
+      const completedObj = completedTaskIds.reduce((acc, taskId) => {
+        acc[taskId] = true
+        return acc
+      }, {} as { [taskId: string]: boolean })
+      setCompletedTaskIds(completedObj)
+    } catch (error) {
+      console.error("Error loading completed tasks:", error)
+    }
+  }
+
   const handleTaskStart = (task: TaskData) => {
     if (!completedTaskIds[task.id]) {
       setActiveTask(task)
     }
   }
 
-  const handleTaskComplete = () => {
-    if (!activeTask) return
+  const handleTaskComplete = async () => {
+    if (!activeTask || !userId) return
 
-    // TODO: Call backend API to increment balance
-    // For now, we just mark it as complete on the frontend.
-    setCompletedTaskIds(prev => ({ ...prev, [activeTask.id]: true }))
-    setLastReward(`₦${activeTask.reward.toFixed(2)}`)
-    setShowSuccess(true)
+    try {
+      // Use the new completeTask method that handles balance increment and transaction logging
+      await databaseService.completeTask(userId, activeTask.id, activeTask.reward)
+      
+      // Mark task as completed on frontend
+      setCompletedTaskIds(prev => ({ ...prev, [activeTask.id]: true }))
+      setLastReward(`₦${activeTask.reward.toFixed(2)}`)
+      setShowSuccess(true)
 
-    // Close the viewer and show success message
-    setActiveTask(null)
-    setTimeout(() => setShowSuccess(false), 5000)
+      // Close the viewer and show success message
+      setActiveTask(null)
+      setTimeout(() => setShowSuccess(false), 5000)
+    } catch (error) {
+      console.error("Error completing task:", error)
+      // Show specific error message
+      if (error instanceof Error && error.message === 'Task already completed') {
+        alert("You have already completed this task.")
+        setCompletedTaskIds(prev => ({ ...prev, [activeTask.id]: true }))
+      } else {
+        alert("Failed to complete task. Please try again.")
+      }
+      setActiveTask(null)
+    }
   }
 
   const handleViewerClose = () => {

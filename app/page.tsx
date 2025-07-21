@@ -43,13 +43,13 @@ export default function CreateAccount() {
       return false
     }
     
-    if (formData.password.length < 9) {
-      setAlert({ type: 'error', message: 'Password must be at least 9 characters' })
+    if (formData.password.length !== 6) {
+      setAlert({ type: 'error', message: 'Password must be exactly 6 digits' })
       return false
     }
     
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])/.test(formData.password)) {
-      setAlert({ type: 'error', message: 'Password must contain uppercase, lowercase, number, and special character' })
+    if (!/^\d{6}$/.test(formData.password)) {
+      setAlert({ type: 'error', message: 'Password must contain only 6 digits' })
       return false
     }
     
@@ -193,16 +193,18 @@ export default function CreateAccount() {
 
         <div className="space-y-2">
           <Label htmlFor="password" className="text-white text-base font-normal">
-            Password
+            Password (6 digits)
           </Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Password"
+              placeholder="6-digit password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0 pr-12"
+              maxLength={6}
+              pattern="[0-9]{6}"
               required
               disabled={isLoading}
             />
@@ -227,10 +229,12 @@ export default function CreateAccount() {
             <Input
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm password"
+              placeholder="Confirm 6-digit password"
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0 pr-12"
+              maxLength={6}
+              pattern="[0-9]{6}"
               required
               disabled={isLoading}
             />

@@ -205,6 +205,20 @@ export const databaseService = {
     }
   },
 
+  async incrementUserBalance(userId: string, amount: number) {
+    try {
+      const { error } = await supabase.rpc('increment_balance', {
+        user_id: userId,
+        amount: Math.abs(amount),
+      });
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error incrementing user balance:', error);
+      throw error;
+    }
+  },
+
   async getAllTasks(): Promise<TaskData[]> {
     try {
       const { data, error } = await supabase
@@ -244,6 +258,154 @@ export const databaseService = {
       return data || [];
     } catch (error) {
       console.error('Error fetching users:', error);
+      return [];
+    }
+  },
+
+  async createTask(taskData: {
+    title: string;
+    description: string;
+    reward: number;
+    category: string;
+    link?: string;
+    status: string;
+  }) {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_tasks')
+        .insert({
+          title: taskData.title,
+          description: taskData.description,
+          reward: taskData.reward,
+          category: taskData.category,
+          link: taskData.link,
+          status: taskData.status,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating task:', error);
+      throw error;
+    }
+  },
+
+  async updateTask(taskId: string, taskData: {
+    title: string;
+    description: string;
+    reward: number;
+    category: string;
+    link?: string;
+    status: string;
+  }) {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_tasks')
+        .update({
+          title: taskData.title,
+          description: taskData.description,
+          reward: taskData.reward,
+          category: taskData.category,
+          link: taskData.link,
+          status: taskData.status,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', taskId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating task:', error);
+      throw error;
+    }
+  },
+
+  async deleteTask(taskId: string) {
+    try {
+      const { error } = await supabase
+        .from('dailyearn_tasks')
+        .delete()
+        .eq('id', taskId);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      throw error;
+    }
+  },
+
+  async completeTask(userId: string, taskId: string, reward: number) {
+    try {
+      // Check if user has already completed this task
+      const { data: existingCompletion } = await supabase
+        .from('dailyearn_transactions')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('task_id', taskId)
+        .eq('type', 'task')
+        .single();
+
+      if (existingCompletion) {
+        throw new Error('Task already completed');
+      }
+
+      // First, increment the user's balance with the task reward
+      await this.incrementUserBalance(userId, reward);
+
+      // Create a transaction record
+      const { error: transactionError } = await supabase
+        .from('dailyearn_transactions')
+        .insert({
+          user_id: userId,
+          type: 'task',
+          amount: reward,
+          description: `Task completion reward`,
+          task_id: taskId,
+        });
+
+      if (transactionError) {
+        console.error('Error creating transaction record:', transactionError);
+        // Don't throw here - the balance was already updated
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error completing task:', error);
+      throw error;
+    }
+  },
+
+  async getUserCompletedTasks(userId: string): Promise<string[]> {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_transactions')
+        .select('task_id')
+        .eq('user_id', userId)
+        .eq('type', 'task')
+        .not('task_id', 'is', null);
+
+      if (error) throw error;
+      return data?.map(t => t.task_id).filter(Boolean) || [];
+    } catch (error) {
+      console.error('Error fetching completed tasks:', error);
+      return [];
+    }
+  },
+
+  async getUserTransactions(userId: string): Promise<TransactionData[]> {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching user transactions:', error);
       return [];
     }
   }

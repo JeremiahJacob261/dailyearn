@@ -70,6 +70,21 @@ CREATE TABLE dailyearn_tasks (
   description TEXT,
   reward DECIMAL(10, 2) NOT NULL,
   duration VARCHAR(50),
+  category VARCHAR(100),
+  link VARCHAR(500),
+  status VARCHAR(20) DEFAULT 'active',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create transactions table
+drop table if exists dailyearn_transactions cascade;
+CREATE TABLE dailyearn_transactions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES dailyearn_users(id) ON DELETE CASCADE,
+  type VARCHAR(20) NOT NULL CHECK (type IN ('referral', 'task', 'payout')),
+  amount DECIMAL(10, 2) NOT NULL,
+  description TEXT,
+  task_id UUID REFERENCES dailyearn_tasks(id) ON DELETE SET NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
