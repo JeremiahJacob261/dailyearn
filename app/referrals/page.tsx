@@ -70,7 +70,7 @@ export default function Referrals() {
               <img
                 src="/icons/arrow-left.svg"
                 alt="back"
-                className="w-auto h-auto"
+                className="w-auto h-auto bg-stone-600 p-2 rounded-full hover:bg-stone-700 transition-colors"
               />
             </button>
             <h1 className="text-2xl font-semibold text-black dark:text-white">Referrals</h1>
@@ -108,17 +108,17 @@ export default function Referrals() {
         </div>
         {/* Your Referrals */}
         <div className="px-6 md:px-8 pb-8">
-          <h2 className="text-white text-2xl md:text-3xl font-bold mb-6">Your referrals</h2>
+          <h2 className="dark:text-white text-stone-700 text-2xl md:text-3xl font-bold mb-6">Your referrals</h2>
           {isLoading ? (
-            <div className="text-center text-gray-400">Loading...</div>
+            <div className="text-center dark:text-gray-400 text-gray-950">Loading...</div>
           ) : referrals.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[220px] w-full">
-              <div className="text-white text-2xl md:text-3xl font-bold text-center mb-6">
+              <div className="text-stone-700 dark:text-stone-100 text-2xl md:text-3xl font-bold text-center mb-6">
                 You do not have any<br />referrals currently
               </div>
               <button
                 onClick={copyReferralCode}
-                className="mt-2 px-8 py-3 rounded-full bg-white text-black text-lg font-semibold shadow hover:scale-105 transition-all"
+                className="mt-2 px-8 py-3 rounded-full bg-stone-800 dark:bg-white dark:text-dark text-white text-lg font-semibold shadow hover:scale-105 transition-all"
               >
                 Copy code
               </button>

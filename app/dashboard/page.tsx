@@ -75,15 +75,19 @@ export default function Dashboard() {
                 </span>
               </div>
               <div>
-                <p className="text-gray-500 dark:text-stone-400 text-base md:text-lg">
+                              <div>
+                <p className="text-stone-400 dark:text-stone-400 text-base md:text-lg">
                   Total balance
                 </p>
                 <p className="text-black dark:text-white text-2xl font-semibold">
                   ₦ {balance.toLocaleString()}
                 </p>
               </div>
+              </div>
             </button>
-            <img src="/icons/nexxt.svg" width={24} height={24}  onClick={() => router.push("/profile")}/>
+            <img src="/icons/nexxt.svg" width={45} height={45} 
+            className="p-2 dark:bg-inherit bg-stone-400 rounded-full" alt="Nexxt Logo"
+            onClick={() => router.push("/profile")}/>
           </div>
         </div>
 
@@ -122,7 +126,7 @@ export default function Dashboard() {
               >
                 <img src="/icons/_referral.svg" width={24} height={24} />
               </div>
-              <span className="text-black dark:text-white text-sm md:text-base">Referrals</span>
+              <span className="text-stone-900 dark:text-stone-100 text-sm md:text-base">Referrals</span>
             </button>
             <button className="flex flex-col items-center gap-2">
               <div
@@ -143,7 +147,7 @@ export default function Dashboard() {
 
         {/* Referral Card */}
         <div className="px-6 md:px-8 pb-8">
-          <div className="bg-stone-800 rounded-2xl p-6 md:p-8 relative overflow-hidden">
+          <div className="bg-gray-200 dark:bg-stone-800 rounded-2xl p-6 md:p-8 relative overflow-hidden">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h3 className="text-black dark:text-white text-xl md:text-2xl font-bold mb-2">
@@ -154,7 +158,7 @@ export default function Dashboard() {
                   wallet!
                 </p>
                 <Link href="/referrals">
-                  <Button className="bg-white text-black hover:bg-stone-100 hover:scale-105 rounded-full px-6 py-2">
+                  <Button className="bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-stone-100 hover:scale-105 rounded-full px-6 py-2">
                     How it works
                   </Button>
                 </Link>

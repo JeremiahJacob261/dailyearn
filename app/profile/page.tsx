@@ -65,7 +65,7 @@ export default function ProfilePage() {
             <img
               src="/icons/arrow-left.svg"
               alt="back"
-              className="w-auto h-auto"
+              className="w-auto h-auto bg-stone-600 p-2 rounded-full hover:bg-stone-700 transition-colors"
             />
           </button>
           <h1 className="text-3xl font-bold text-black dark:text-white">Profile</h1>
@@ -104,7 +104,7 @@ export default function ProfilePage() {
         </div>
         {/* Actions */}
         <div className="flex flex-col items-center gap-2 mt-8">
-          <button onClick={handleLogout} className="text-white text-lg mb-2">Logout</button>
+          <button onClick={handleLogout} className="dark:text-white text-black text-lg mb-2">Logout</button>
           <button onClick={handleDelete} className="text-red-500 text-lg font-semibold">Delete account</button>
         </div>
       </MobileLayout>

@@ -10,7 +10,7 @@ export default function WelcomePage() {
         {/* Logo/Brand */}
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-black dark:text-white text-2xl font-semibold">A</span>
+            <span className="text-black dark:text-stone-400 text-2xl font-semibold">A</span>
           </div>
           <h1 className="text-3xl font-semibold text-black dark:text-stone-200 mb-2">AdsEarn</h1>
           <p className="text-gray-600 dark:text-stone-400 text-lg">Earn while you browse</p>

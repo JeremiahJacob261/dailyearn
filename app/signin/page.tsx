@@ -59,7 +59,7 @@ export default function SignIn() {
 
       {/* Header */}
       <div className="flex justify-between items-center px-6 md:px-8 pt-8 md:pt-12 pb-6">
-        <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-white">Sign in</h1>
+        <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-stone-400">Sign in</h1>
         <button onClick={() => router.push("/")} className="flex items-center text-gray-500 dark:text-stone-400 text-lg md:text-xl">
           Create account
           <ChevronRight className="w-5 h-5 ml-1" />
@@ -76,7 +76,7 @@ export default function SignIn() {
       {/* Form */}
       <form onSubmit={handleSubmit} className="flex-1 px-6 md:px-8 space-y-6 md:space-y-8">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-black dark:text-white text-base font-normal">
+          <Label htmlFor="email" className="text-black dark:text-stone-400 text-base font-normal">
             Email address
           </Label>
           <Input
@@ -85,14 +85,14 @@ export default function SignIn() {
             placeholder="Email address"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0"
+            className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-stone-400 placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0"
             required
             disabled={isLoading}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-black dark:text-white text-base font-normal">
+          <Label htmlFor="password" className="text-black dark:text-stone-400 text-base font-normal">
             Password
           </Label>
           <div className="relative">
@@ -102,7 +102,7 @@ export default function SignIn() {
               placeholder="Password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"
+              className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-stone-400 placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"
               required
               disabled={isLoading}
             />
