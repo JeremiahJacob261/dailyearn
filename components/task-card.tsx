@@ -7,7 +7,7 @@ interface TaskCardProps {
   description: string
   reward: string
   duration: string
-  isCompleted: boolean
+  isCompleted?: boolean
   onTaskClick: () => void
 }
 

@@ -26,12 +26,12 @@ export default function Verification() {
     <MobileLayout>
       {/* Header */}
       <div className="px-6 md:px-8 pt-8 md:pt-12 pb-6">
-        <h1 className="text-3xl md:text-4xl font-bold">Verification code</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-black dark:text-white">Verification code</h1>
       </div>
 
       {/* Subtitle */}
       <div className="px-6 md:px-8 pb-12 md:pb-16">
-        <p className="text-stone-400 text-base md:text-lg leading-relaxed">
+        <p className="text-gray-500 dark:text-stone-400 text-base md:text-lg leading-relaxed">
           We've sent a verification code to demomail.com. You will receive an e-mail within the next minute.
         </p>
       </div>
@@ -39,7 +39,7 @@ export default function Verification() {
       {/* Verification Input */}
       <div className="px-6 md:px-8 pb-12 md:pb-16">
         <div className="space-y-6 md:space-y-8">
-          <Label className="text-white text-base md:text-lg font-normal">Verification code</Label>
+          <Label className="text-black dark:text-white text-base md:text-lg font-normal">Verification code</Label>
           <VerificationInput length={5} onComplete={handleCodeComplete} />
         </div>
       </div>

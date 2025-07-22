@@ -68,19 +68,19 @@ export default function ProfilePage() {
               className="w-auto h-auto"
             />
           </button>
-          <h1 className="text-3xl font-bold text-white">Profile</h1>
+          <h1 className="text-3xl font-bold text-black dark:text-white">Profile</h1>
         </div>
         {/* Avatar and Info */}
         <div className="flex flex-col items-center mt-4 mb-6">
           <div className="w-24 h-24 bg-yellow-500 rounded-full flex items-center justify-center mb-4">
-            <span className="text-white text-4xl font-bold">
+            <span className="text-black dark:text-white text-4xl font-bold">
               {userData?.full_name?.[0] || "?"}
             </span>
           </div>
-          <h2 className="text-white text-2xl font-bold mb-1">
+          <h2 className="text-black dark:text-white text-2xl font-bold mb-1">
             {userData?.full_name || "-"}
           </h2>
-          <p className="text-gray-400 text-lg mb-4">
+          <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
             {userData?.email || "-"}
           </p>
           <button

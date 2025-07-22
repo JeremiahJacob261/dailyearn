@@ -20,7 +20,7 @@ export default function Terms() {
 
       {/* Terms Content */}
       <div className="flex-1 px-6 md:px-8 pb-8 md:pb-12 overflow-y-auto">
-        <div className="space-y-6 md:space-y-8 text-stone-400 text-base md:text-lg leading-relaxed">
+        <div className="space-y-6 md:space-y-8 text-gray-500 dark:text-stone-400 text-base md:text-lg leading-relaxed">
           <p>
             By creating an account, you confirm that you are at least 18 years old (or meet the minimum age requirement
             in your country), and you agree to our Terms of Use and Privacy Policy.

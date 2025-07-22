@@ -94,26 +94,26 @@ export default function WalletPage() {
               className="w-auto h-auto"
             />
           </button>
-          <h1 className="text-3xl font-bold text-white">Wallet</h1>
+          <h1 className="text-3xl font-bold text-black dark:text-white">Wallet</h1>
         </div>
 
         {/* Notification Ticker (optional, as in images) */}
         <div className="w-full overflow-x-auto bg-[#181818] py-2 flex items-center px-4 gap-4">
           <div className="flex animate-scroll-x whitespace-nowrap gap-8 w-max">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-[#ff2d55] rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-6 h-6 bg-[#ff2d55] rounded-full flex items-center justify-center text-black dark:text-white font-bold">
                 Q
               </div>
-              <span className="text-white text-sm">
+              <span className="text-black dark:text-white text-sm">
                 demo....mail.com
                 <span className="text-[#9BFF00]">.  payout .</span>processed
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-[#ffcc00] rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-6 h-6 bg-[#ffcc00] rounded-full flex items-center justify-center text-black dark:text-white font-bold">
                 K
               </div>
-              <span className="text-white text-sm">demo....mail.com
+              <span className="text-black dark:text-white text-sm">demo....mail.com
                 <span className="text-[#9BFF00]">. payout . </span>processed
               </span>
             </div>
@@ -123,14 +123,14 @@ export default function WalletPage() {
         {/* Account Selector and Balance */}
         <div className="flex flex-col items-center mt-8 mb-6">
           <div className="bg-[#222] rounded-full px-6 py-2 flex items-center gap-2 mb-4">
-            <div className="w-6 h-6 bg-[#ffcc00] rounded-full flex items-center justify-center text-black font-bold">
+            <div className="w-6 h-6 bg-[#ffcc00] rounded-full flex items-center justify-center text-black dark:text-white font-bold">
               o
             </div>
-            <span className="text-white text-base font-semibold">
+            <span className="text-black dark:text-white text-base font-semibold">
               {userData?.email?.replace(/(.{4}).*(@.*)/, "$1....$2")}
             </span>
             <svg
-              className="w-4 h-4 text-white opacity-60"
+              className="w-4 h-4 text-black dark:text-white opacity-60"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -143,7 +143,7 @@ export default function WalletPage() {
               />
             </svg>
           </div>
-          <div className="text-white text-6xl font-bold tracking-tight mb-2">
+          <div className="text-black dark:text-white text-6xl font-bold tracking-tight mb-2">
             ₦{balance.toLocaleString()}
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function WalletPage() {
                 className="w-8 h-8"
               />
             </button>
-            <span className="text-white text-sm">Payout</span>
+            <span className="text-black dark:text-white text-sm">Payout</span>
           </div>
           <div className="flex flex-col items-center">
             <button
@@ -179,7 +179,7 @@ export default function WalletPage() {
                 className="w-8 h-8"
               />
             </button>
-            <span className="text-white text-sm">Referrals</span>
+            <span className="text-black dark:text-white text-sm">Referrals</span>
           </div>
           <div className="flex flex-col items-center">
             <button
@@ -188,7 +188,7 @@ export default function WalletPage() {
             >
               <img src="/icons/history.svg" alt="History" className="w-8 h-8" />
             </button>
-            <span className="text-white text-sm">History</span>
+            <span className="text-black dark:text-white text-sm">History</span>
           </div>
         </div>
 
@@ -206,7 +206,7 @@ export default function WalletPage() {
         {/* Empty state for payouts */}
         {recentPayouts.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[220px] w-full">
-            <div className="text-white text-2xl md:text-3xl font-bold text-center mb-6">
+            <div className="text-black dark:text-white text-2xl md:text-3xl font-bold text-center mb-6">
               You do not have any<br />payouts currently
             </div>
             <button
@@ -220,7 +220,7 @@ export default function WalletPage() {
 
         {/* Recent payouts */}
         <div className="px-6">
-          <h2 className="text-white text-xl font-semibold mb-4">
+          <h2 className="text-black dark:text-white text-xl font-semibold mb-4">
             Recent payouts
           </h2>
           <div className="space-y-4">
@@ -240,13 +240,13 @@ export default function WalletPage() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-white text-lg font-semibold">
+                    <h3 className="text-black dark:text-white text-lg font-semibold">
                       Payout 1
                     </h3>
                     <p className="text-gray-400 text-sm">Watch ad and earn</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-white text-lg font-semibold">
+                    <p className="text-black dark:text-white text-lg font-semibold">
                       ₦{Number(payout.amount).toLocaleString()}
                     </p>
                     <p className="text-gray-400 text-sm">

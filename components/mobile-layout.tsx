@@ -8,7 +8,7 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ children }: MobileLayoutProps) {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col max-w-md mx-auto md:max-w-lg lg:max-w-xl">
+    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white flex flex-col max-w-md mx-auto md:max-w-lg lg:max-w-xl">
       {/* Content */}
       <div className="flex-1 flex flex-col">{children}</div>
 

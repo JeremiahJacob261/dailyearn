@@ -73,7 +73,7 @@ export default function Referrals() {
                 className="w-auto h-auto"
               />
             </button>
-            <h1 className="text-2xl font-semibold text-white">Referrals</h1>
+            <h1 className="text-2xl font-semibold text-black dark:text-white">Referrals</h1>
           </div>
           <div onClick={copyReferralCode} className="flex items-center gap-5 rounded-sm bg-[#1C250D] bg-opacity-50 px-2 py-2 cursor-pointer hover:scale-105">
             <img
@@ -90,18 +90,18 @@ export default function Referrals() {
         <div className="px-6 md:px-8 py-6">
           <div className="flex items-center gap-2 mb-6">
             <Flame className="w-6 h-6 text-orange-500" />
-            <h2 className="text-white text-xl md:text-2xl font-bold">Spotlight</h2>
+            <h2 className="text-black dark:text-white text-xl md:text-2xl font-bold">Spotlight</h2>
           </div>
           <div className="flex flex-col items-center text-center">
             <div className={`w-20 h-20 md:w-24 md:h-24 bg-red-500 rounded-full flex items-center justify-center mb-4`}>
-              <span className="text-white text-3xl md:text-4xl font-bold">
+              <span className="text-black dark:text-white text-3xl md:text-4xl font-bold">
                 {userData?.full_name?.[0] || "?"}
               </span>
             </div>
-            <h3 className="text-white text-xl md:text-2xl font-bold mb-2">
+            <h3 className="text-black dark:text-white text-xl md:text-2xl font-bold mb-2">
               {userData?.full_name || "-"}
             </h3>
-            <p className="text-gray-400 text-base md:text-lg">
+            <p className="text-gray-500 dark:text-gray-400 text-base md:text-lg">
               {stats.totalReferrals} referrals, ₦{stats.totalEarnings.toLocaleString()} payout
             </p>
           </div>
@@ -128,23 +128,23 @@ export default function Referrals() {
               {referrals.map((referral) => (
                 <div key={referral.id} className="flex items-center gap-4">
                   <div className={`w-12 h-12 md:w-14 md:h-14 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-white text-lg md:text-xl font-bold">
+                    <span className="text-black dark:text-white text-lg md:text-xl font-bold">
                       {referral.referred_user?.full_name?.[0] || "?"}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-white text-lg md:text-xl font-semibold">
+                    <h3 className="text-black dark:text-white text-lg md:text-xl font-semibold">
                       {referral.referred_user?.full_name || "-"}
                     </h3>
-                    <p className="text-gray-400 text-sm md:text-base">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
                       {referral.referred_user?.email || "-"}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-white text-lg md:text-xl font-semibold">
+                    <p className="text-black dark:text-white text-lg md:text-xl font-semibold">
                       ₦{referral.reward_amount.toLocaleString()}
                     </p>
-                    <p className="text-gray-400 text-sm md:text-base">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
                       {new Date(referral.created_at).toLocaleDateString()}
                     </p>
                   </div>

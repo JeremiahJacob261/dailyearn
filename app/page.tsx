@@ -122,8 +122,8 @@ export default function CreateAccount() {
       
       {/* Header */}
       <div className="flex justify-between items-center px-6 md:px-8 pt-8 md:pt-12 pb-6">
-        <h1 className="text-3xl md:text-4xl font-semibold">Create account</h1>
-        <button onClick={() => router.push("/signin")} className="flex items-center text-stone-400 text-lg md:text-xl">
+        <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-white">Create account</h1>
+        <button onClick={() => router.push("/signin")} className="flex items-center text-gray-500 dark:text-stone-400 text-lg md:text-xl">
           Sign in
           <ChevronRight className="w-5 h-5 ml-1" />
         </button>
@@ -131,7 +131,7 @@ export default function CreateAccount() {
 
       {/* Subtitle */}
       <div className="px-6 md:px-8 pb-8 md:pb-10">
-        <p className="text-stone-400 text-base md:text-lg leading-relaxed">
+        <p className="text-gray-500 dark:text-stone-400 text-base md:text-lg leading-relaxed">
           We value your time — and we pay for it. Secure and easy setup. Start earning instantly.
         </p>
       </div>
@@ -139,7 +139,7 @@ export default function CreateAccount() {
       {/* Form */}
       <form onSubmit={handleSubmit} className="flex-1 px-6 md:px-8 space-y-6 md:space-y-8">
         <div className="space-y-2">
-          <Label htmlFor="fullname" className="text-white text-base font-normal">
+          <Label htmlFor="fullname" className="text-black dark:text-white text-base font-normal">
             Full name
           </Label>
           <Input
@@ -147,14 +147,14 @@ export default function CreateAccount() {
             placeholder="Full name"
             value={formData.fullName}
             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-            className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0"
+            className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0"
             required
             disabled={isLoading}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-white text-base font-normal">
+          <Label htmlFor="email" className="text-black dark:text-white text-base font-normal">
             Email address
           </Label>
           <Input
@@ -163,7 +163,7 @@ export default function CreateAccount() {
             placeholder="Email address"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0"
+            className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0"
             required
             disabled={isLoading}
           />
@@ -192,7 +192,7 @@ export default function CreateAccount() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-white text-base font-normal">
+          <Label htmlFor="password" className="text-black dark:text-white text-base font-normal">
             Password (6 digits)
           </Label>
           <div className="relative">
@@ -202,7 +202,7 @@ export default function CreateAccount() {
               placeholder="6-digit password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0 pr-12"
+              className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"
               maxLength={6}
               pattern="[0-9]{6}"
               required
@@ -211,7 +211,7 @@ export default function CreateAccount() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-stone-400"
               disabled={isLoading}
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -222,7 +222,7 @@ export default function CreateAccount() {
         {formData.password && <PasswordRequirements password={formData.password} />}
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword" className="text-white text-base font-normal">
+          <Label htmlFor="confirmPassword" className="text-black dark:text-white text-base font-normal">
             Confirm password
           </Label>
           <div className="relative">
@@ -232,7 +232,7 @@ export default function CreateAccount() {
               placeholder="Confirm 6-digit password"
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-white placeholder:text-stone-500 focus:border-stone-400 focus:ring-0 pr-12"
+              className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"
               maxLength={6}
               pattern="[0-9]{6}"
               required
@@ -241,7 +241,7 @@ export default function CreateAccount() {
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-stone-400"
               disabled={isLoading}
             >
               {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

@@ -10,10 +10,10 @@ export default function WelcomePage() {
         {/* Logo/Brand */}
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-white text-2xl font-semibold">A</span>
+            <span className="text-black dark:text-white text-2xl font-semibold">A</span>
           </div>
-          <h1 className="text-3xl font-semibold text-stone-900 mb-2">AdsEarn</h1>
-          <p className="text-stone-600 text-lg">Earn while you browse</p>
+          <h1 className="text-3xl font-semibold text-black dark:text-stone-200 mb-2">AdsEarn</h1>
+          <p className="text-gray-600 dark:text-stone-400 text-lg">Earn while you browse</p>
         </div>
 
         {/* Illustration placeholder */}
@@ -24,8 +24,8 @@ export default function WelcomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-stone-900 mb-2">Start Earning</h3>
-            <p className="text-stone-600 text-sm">Watch ads and earn rewards instantly</p>
+            <h3 className="text-xl font-semibold text-black dark:text-stone-200 mb-2">Start Earning</h3>
+            <p className="text-gray-600 dark:text-stone-400 text-sm">Watch ads and earn rewards instantly</p>
           </div>
         </div>
 
@@ -47,7 +47,7 @@ export default function WelcomePage() {
         </div>
 
         {/* Terms */}
-        <p className="text-center text-sm text-stone-500 mt-8">
+        <p className="text-center text-sm text-gray-500 dark:text-stone-400 mt-8">
           By continuing, you agree to our{' '}
           <Link href="/terms" className="text-indigo-600 hover:underline">
             Terms of Service

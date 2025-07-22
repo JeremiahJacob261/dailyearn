@@ -15,6 +15,7 @@ import Link from "next/link";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import { TaskCard } from "@/components/task-card";
 import { databaseService, UserData, TaskData } from "@/lib/database";
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Dashboard() {
   const router = useRouter();
@@ -56,6 +57,10 @@ export default function Dashboard() {
   return (
     <div className="pb-20">
       <MobileLayout>
+        {/* Theme Toggle at the top right */}
+        <div className="flex justify-end px-6 md:px-8 pt-4">
+          <ThemeToggle />
+        </div>
         {/* Balance Section */}
         <div className="px-6 md:px-8 pt-8 md:pt-12 pb-6">
           <div className="flex items-center justify-between">
@@ -65,15 +70,15 @@ export default function Dashboard() {
               onClick={() => router.push("/profile")}
             >
               <div className="w-16 h-16 md:w-20 md:h-20 bg-amber-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-2xl md:text-3xl font-bold">
+                <span className="text-black dark:text-white text-2xl md:text-3xl font-bold">
                   $
                 </span>
               </div>
               <div>
-                <p className="text-stone-400 text-base md:text-lg">
+                <p className="text-gray-500 dark:text-stone-400 text-base md:text-lg">
                   Total balance
                 </p>
-                <p className="text-white text-2xl font-semibold">
+                <p className="text-black dark:text-white text-2xl font-semibold">
                   ₦ {balance.toLocaleString()}
                 </p>
               </div>
@@ -100,7 +105,7 @@ export default function Dashboard() {
               >
                 <img src="/icons/task-edit-02.svg" width={24} height={24} />
               </div>
-              <span className="text-white text-sm md:text-base">Tasks</span>
+              <span className="text-black dark:text-white text-sm md:text-base">Tasks</span>
             </button>
             <button
               onClick={() => router.push("/referrals")}
@@ -117,7 +122,7 @@ export default function Dashboard() {
               >
                 <img src="/icons/_referral.svg" width={24} height={24} />
               </div>
-              <span className="text-white text-sm md:text-base">Referrals</span>
+              <span className="text-black dark:text-white text-sm md:text-base">Referrals</span>
             </button>
             <button className="flex flex-col items-center gap-2">
               <div
@@ -131,7 +136,7 @@ export default function Dashboard() {
               >
                 <img src="/icons/table.svg" width={24} height={24} />
               </div>
-              <span className="text-white text-sm md:text-base">Table</span>
+              <span className="text-black dark:text-white text-sm md:text-base">Table</span>
             </button>
           </div>
         </div>
@@ -141,10 +146,10 @@ export default function Dashboard() {
           <div className="bg-stone-800 rounded-2xl p-6 md:p-8 relative overflow-hidden">
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h3 className="text-white text-xl md:text-2xl font-bold mb-2">
+                <h3 className="text-black dark:text-white text-xl md:text-2xl font-bold mb-2">
                   Referral code = free money!
                 </h3>
-                <p className="text-stone-300 text-base md:text-lg mb-6">
+                <p className="text-gray-600 dark:text-stone-300 text-base md:text-lg mb-6">
                   Share your referral code and start with extra cash in your
                   wallet!
                 </p>
@@ -173,24 +178,23 @@ export default function Dashboard() {
 
         {/* Your Tasks */}
         <div className="px-6 pb-8 space-y-5">
-          <h2 className="text-white text-2xl font-semibold leading-[150%]">
+          <h2 className="text-black dark:text-white text-2xl font-semibold leading-[150%]">
             Your tasks
           </h2>
           {isLoading ? (
-            <div className="text-center text-gray-400">Loading...</div>
+            <div className="text-center text-gray-500 dark:text-gray-400">Loading...</div>
           ) : tasks.length === 0 ? (
-            <div className="text-center text-gray-400">No tasks available.</div>
+            <div className="text-center text-gray-500 dark:text-gray-400">No tasks available.</div>
           ) : (
             <div className="space-y-6">
               {tasks.map((task) => (
                 <TaskCard
                   key={task.id}
-                  id={task.id}
                   title={task.title}
                   description={task.description}
                   reward={`₦${task.reward.toFixed(2)}`}
                   duration={task.duration}
-                  onTaskClick={handleTaskClick}
+                  onTaskClick={() => handleTaskClick(task.id)}
                 />
               ))}
             </div>
