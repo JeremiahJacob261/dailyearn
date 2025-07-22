@@ -97,7 +97,7 @@ export default function CreateAccount() {
         userId: result.user.id,
         verificationCode: result.verificationCode
       }))
-
+      
       setAlert({ type: 'success', message: 'Account created successfully!' })
       
       setTimeout(() => {

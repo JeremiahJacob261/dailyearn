@@ -70,6 +70,15 @@ export const authService = {
           expires_at: expiresAt.toISOString(),
         })
 
+      // Store user session (same as sign in)
+      localStorage.setItem('user', JSON.stringify({
+        id: newUser.id,
+        email: newUser.email,
+        fullName: newUser.full_name,
+        referralCode: newUser.referral_code,
+        balance: newUser.balance,
+      }))
+
       return { user: newUser, verificationCode }
     } catch (error) {
       throw error
