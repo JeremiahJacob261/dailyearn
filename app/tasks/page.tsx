@@ -21,6 +21,7 @@ export default function Tasks() {
 
   const [activeTask, setActiveTask] = useState<TaskData | null>(null)
   const [completedTaskIds, setCompletedTaskIds] = useState<{ [taskId: string]: boolean }>({})
+  const [taskCooldowns, setTaskCooldowns] = useState<{ [taskId: string]: number }>({})
 
   useEffect(() => {
     // Get current user from localStorage
@@ -36,6 +37,7 @@ export default function Tasks() {
     // Load completed tasks when userId is available
     if (userId) {
       loadCompletedTasks()
+      loadTaskCooldowns()
     }
   }, [userId])
 
@@ -65,10 +67,63 @@ export default function Tasks() {
     }
   }
 
-  const handleTaskStart = (task: TaskData) => {
-    if (!completedTaskIds[task.id]) {
-      setActiveTask(task)
+  const loadTaskCooldowns = async () => {
+    if (!userId) return
+    try {
+      const cooldownPromises = tasks.map(async (task) => {
+        const cooldownInfo = await databaseService.getTaskCooldownInfo(userId, task.id)
+        return { taskId: task.id, cooldownMinutes: cooldownInfo.timeRemaining || 0 }
+      })
+      
+      const cooldownResults = await Promise.all(cooldownPromises)
+      const cooldownObj = cooldownResults.reduce((acc, { taskId, cooldownMinutes }) => {
+        acc[taskId] = cooldownMinutes
+        return acc
+      }, {} as { [taskId: string]: number })
+      
+      setTaskCooldowns(cooldownObj)
+    } catch (error) {
+      console.error("Error loading task cooldowns:", error)
     }
+  }
+
+  useEffect(() => {
+    // Reload cooldowns when tasks are loaded
+    if (userId && tasks.length > 0) {
+      loadTaskCooldowns()
+    }
+  }, [userId, tasks])
+
+  // Add countdown timer to update cooldowns every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTaskCooldowns(prev => {
+        const updated = { ...prev }
+        let hasChanges = false
+        Object.keys(updated).forEach(taskId => {
+          if (updated[taskId] > 0) {
+            updated[taskId] = Math.max(0, updated[taskId] - 1)
+            hasChanges = true
+          }
+        })
+        return hasChanges ? updated : prev
+      })
+    }, 60000) // Update every minute
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleTaskStart = async (task: TaskData) => {
+    if (!userId) return
+    
+    // Check if task is on cooldown
+    const cooldownInfo = await databaseService.getTaskCooldownInfo(userId, task.id)
+    if (!cooldownInfo.canComplete) {
+      alert(`Please wait ${cooldownInfo.timeRemaining} minutes before attempting this task again.`)
+      return
+    }
+    
+    setActiveTask(task)
   }
 
   const handleTaskComplete = async () => {
@@ -78,20 +133,25 @@ export default function Tasks() {
       // Use the new completeTask method that handles balance increment and transaction logging
       await databaseService.completeTask(userId, activeTask.id, activeTask.reward)
       
-      // Mark task as completed on frontend
+      // Mark task as completed on frontend and update cooldown
       setCompletedTaskIds(prev => ({ ...prev, [activeTask.id]: true }))
+      setTaskCooldowns(prev => ({ ...prev, [activeTask.id]: 60 })) // 60 minutes cooldown
       setLastReward(`₦${activeTask.reward.toFixed(2)}`)
       setShowSuccess(true)
 
       // Close the viewer and show success message
       setActiveTask(null)
       setTimeout(() => setShowSuccess(false), 5000)
+      
+      // Reload data to get fresh state
+      loadCompletedTasks()
+      loadTaskCooldowns()
     } catch (error) {
       console.error("Error completing task:", error)
       // Show specific error message
-      if (error instanceof Error && error.message === 'Task already completed') {
-        alert("You have already completed this task.")
-        setCompletedTaskIds(prev => ({ ...prev, [activeTask.id]: true }))
+      if (error instanceof Error && error.message.includes('completed recently')) {
+        alert("You have completed this task recently. Please wait before trying again.")
+        loadTaskCooldowns() // Refresh cooldown info
       } else {
         alert("Failed to complete task. Please try again.")
       }
@@ -167,7 +227,7 @@ export default function Tasks() {
 
         {/* Your Tasks */}
         <div className="px-6 md:px-8 pb-8">
-          <h2 className="text-white text-2xl md:text-3xl font-semibold mb-6">Your tasks</h2>
+          <h2 className="dark:text-white text-stone-900 text-2xl md:text-3xl font-semibold mb-6">Your tasks</h2>
           {isLoading ? (
             <div className="text-center text-gray-400">Loading...</div>
           ) : tasks.length === 0 ? (
@@ -182,6 +242,7 @@ export default function Tasks() {
                   reward={`₦${task.reward.toFixed(2)}`}
                   duration={task.duration}
                   isCompleted={!!completedTaskIds[task.id]}
+                  cooldownMinutes={taskCooldowns[task.id] || 0}
                   onTaskClick={() => handleTaskStart(task)}
                 />
               ))}

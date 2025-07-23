@@ -338,17 +338,21 @@ export const databaseService = {
 
   async completeTask(userId: string, taskId: string, reward: number) {
     try {
-      // Check if user has already completed this task
-      const { data: existingCompletion } = await supabase
+      // Check if user has completed this task recently (within the last hour)
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { data: recentCompletion } = await supabase
         .from('dailyearn_transactions')
-        .select('id')
+        .select('id, created_at')
         .eq('user_id', userId)
         .eq('task_id', taskId)
         .eq('type', 'task')
+        .gte('created_at', oneHourAgo)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
-      if (existingCompletion) {
-        throw new Error('Task already completed');
+      if (recentCompletion) {
+        throw new Error('Task completed recently. Please wait before attempting again.');
       }
 
       // First, increment the user's balance with the task reward
@@ -379,11 +383,14 @@ export const databaseService = {
 
   async getUserCompletedTasks(userId: string): Promise<string[]> {
     try {
+      // Get tasks completed in the last hour
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
       const { data, error } = await supabase
         .from('dailyearn_transactions')
         .select('task_id')
         .eq('user_id', userId)
         .eq('type', 'task')
+        .gte('created_at', oneHourAgo)
         .not('task_id', 'is', null);
 
       if (error) throw error;
@@ -391,6 +398,38 @@ export const databaseService = {
     } catch (error) {
       console.error('Error fetching completed tasks:', error);
       return [];
+    }
+  },
+
+  async getTaskCooldownInfo(userId: string, taskId: string): Promise<{ canComplete: boolean; timeRemaining?: number }> {
+    try {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { data: recentCompletion } = await supabase
+        .from('dailyearn_transactions')
+        .select('created_at')
+        .eq('user_id', userId)
+        .eq('task_id', taskId)
+        .eq('type', 'task')
+        .gte('created_at', oneHourAgo)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (!recentCompletion) {
+        return { canComplete: true };
+      }
+
+      const completionTime = new Date(recentCompletion.created_at).getTime();
+      const oneHourLater = completionTime + (60 * 60 * 1000);
+      const timeRemaining = Math.max(0, oneHourLater - Date.now());
+      
+      return {
+        canComplete: timeRemaining === 0,
+        timeRemaining: Math.ceil(timeRemaining / (60 * 1000)) // Return minutes remaining
+      };
+    } catch (error) {
+      console.error('Error checking task cooldown:', error);
+      return { canComplete: true };
     }
   },
 

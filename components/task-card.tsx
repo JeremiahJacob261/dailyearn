@@ -1,6 +1,6 @@
 "use client"
 
-import { DollarSign } from "lucide-react"
+import { DollarSign, Clock } from "lucide-react"
 
 interface TaskCardProps {
   title: string
@@ -8,6 +8,7 @@ interface TaskCardProps {
   reward: string
   duration: string
   isCompleted?: boolean
+  cooldownMinutes?: number
   onTaskClick: () => void
 }
 
@@ -17,13 +18,16 @@ export function TaskCard({
   reward,
   duration,
   isCompleted,
+  cooldownMinutes,
   onTaskClick,
 }: TaskCardProps) {
+  const isOnCooldown = Boolean(isCompleted && cooldownMinutes && cooldownMinutes > 0);
+  
   return (
     <button
       onClick={onTaskClick}
-      disabled={isCompleted}
-      className="flex items-center gap-4 w-full p-4 rounded-xl bg-transparent hover:bg-neutral-900 transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
+      disabled={isOnCooldown}
+      className="flex items-center gap-4 w-full p-4 rounded-xl bg-neutral-900 dark:bg-transparent hover:bg-neutral-700 transition-colors disabled:opacity-50 disabled:hover:bg-neutral-900"
     >
       <div className="w-16 h-16 bg-lime-400 rounded-2xl flex items-center justify-center">
         <img src="/icons/dolar-coin.svg" width={28} height={28} alt="dollar" />
@@ -35,12 +39,15 @@ export function TaskCard({
       <div className="text-right">
         <p className="text-white text-lg font-medium">{reward}</p>
         <p className="text-stone-400 text-sm md:text-base">{duration}</p>
-        {!isCompleted ? (
-          <div className="mt-2 px-4 py-1 bg-white text-black rounded-full text-sm font-semibold">
-            Start Task
+        {isOnCooldown ? (
+          <div className="mt-2 px-4 py-1 bg-orange-500 text-white rounded-full text-sm font-semibold flex items-center gap-1">
+            <Clock size={12} />
+            {cooldownMinutes}m left
           </div>
         ) : (
-          <div className="mt-2 text-green-400 font-bold">Completed!</div>
+          <div className="mt-2 px-4 py-1 bg-white text-black rounded-full text-sm font-semibold">
+            {isCompleted ? "Start Again" : "Start Task"}
+          </div>
         )}
       </div>
     </button>

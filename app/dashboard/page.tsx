@@ -23,6 +23,8 @@ export default function Dashboard() {
   const [balance, setBalance] = useState(0);
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [completedTaskIds, setCompletedTaskIds] = useState<{ [taskId: string]: boolean }>({});
+  const [taskCooldowns, setTaskCooldowns] = useState<{ [taskId: string]: number }>({});
 
   useEffect(() => {
     loadDashboardData();
@@ -40,15 +42,66 @@ export default function Dashboard() {
       if (freshUserData) {
         setUserData(freshUserData);
         setBalance(freshUserData.balance);
+        
+        // Load completed tasks and cooldowns
+        const completedTaskIds = await databaseService.getUserCompletedTasks(freshUserData.id);
+        const completedObj = completedTaskIds.reduce((acc, taskId) => {
+          acc[taskId] = true;
+          return acc;
+        }, {} as { [taskId: string]: boolean });
+        setCompletedTaskIds(completedObj);
       }
       const dbTasks = await databaseService.getAllTasks();
       setTasks(dbTasks);
+      
+      // Load cooldowns for tasks
+      if (freshUserData) {
+        loadTaskCooldowns(freshUserData.id, dbTasks);
+      }
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const loadTaskCooldowns = async (userId: string, taskList: TaskData[]) => {
+    try {
+      const cooldownPromises = taskList.map(async (task) => {
+        const cooldownInfo = await databaseService.getTaskCooldownInfo(userId, task.id);
+        return { taskId: task.id, cooldownMinutes: cooldownInfo.timeRemaining || 0 };
+      });
+      
+      const cooldownResults = await Promise.all(cooldownPromises);
+      const cooldownObj = cooldownResults.reduce((acc, { taskId, cooldownMinutes }) => {
+        acc[taskId] = cooldownMinutes;
+        return acc;
+      }, {} as { [taskId: string]: number });
+      
+      setTaskCooldowns(cooldownObj);
+    } catch (error) {
+      console.error("Error loading task cooldowns:", error);
+    }
+  };
+
+  // Add countdown timer to update cooldowns every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTaskCooldowns(prev => {
+        const updated = { ...prev }
+        let hasChanges = false
+        Object.keys(updated).forEach(taskId => {
+          if (updated[taskId] > 0) {
+            updated[taskId] = Math.max(0, updated[taskId] - 1)
+            hasChanges = true
+          }
+        })
+        return hasChanges ? updated : prev
+      })
+    }, 60000) // Update every minute
+
+    return () => clearInterval(interval)
+  }, [])
 
   const handleTaskClick = (taskId: string) => {
     router.push(`/tasks?task=${taskId}`);
@@ -198,6 +251,8 @@ export default function Dashboard() {
                   description={task.description}
                   reward={`₦${task.reward.toFixed(2)}`}
                   duration={task.duration}
+                  isCompleted={!!completedTaskIds[task.id]}
+                  cooldownMinutes={taskCooldowns[task.id] || 0}
                   onTaskClick={() => handleTaskClick(task.id)}
                 />
               ))}
