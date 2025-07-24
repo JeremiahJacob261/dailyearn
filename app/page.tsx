@@ -12,7 +12,7 @@ export default function LandingPage() {
       
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-6">
-        <span className="text-black dark:text-white text-2xl font-bold tracking-tight">Daily earn</span>
+        <span className="text-black dark:text-white text-2xl font-bold tracking-tight">DailyEarn</span>
         <Button className="bg-stone-800 text-white px-6 py-2 rounded-lg hover:bg-stone-700 transition-colors" asChild>
           <a href="/register">Get Started</a>
         </Button>

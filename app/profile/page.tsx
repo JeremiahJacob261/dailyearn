@@ -48,11 +48,12 @@ export default function ProfilePage() {
   };
   const handleLogout = () => {
     // Placeholder for logout
-    alert("Logout coming soon!");
+    localStorage.clear();
+    router.push("/signin");
   };
   const handleDelete = () => {
     // Placeholder for delete
-    alert("Delete account coming soon!");
+    alert("Contact support for account deletion.");
   };
 
   return (
