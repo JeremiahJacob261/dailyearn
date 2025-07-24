@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { ArrowLeft, RefreshCw, DollarSign } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MobileLayout } from "@/components/mobile-layout"

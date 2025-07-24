@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MobileLayout } from "@/components/mobile-layout";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { authService } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
         variant: "destructive",
       });
     }
-  }, [searchParams]);
+  }, [searchParams, toast]);
 
   const validateToken = async (tokenToValidate: string) => {
     try {
@@ -260,5 +260,24 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </MobileLayout>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <MobileLayout>
+      <div className="px-6 pt-8 pb-6 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+      </div>
+    </MobileLayout>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }
