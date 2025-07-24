@@ -111,9 +111,7 @@ export default function Dashboard() {
     <div className="pb-20">
       <MobileLayout>
         {/* Theme Toggle at the top right */}
-        <div className="flex justify-end px-6 md:px-8 pt-4">
-          <ThemeToggle />
-        </div>
+       
         {/* Balance Section */}
         <div className="px-6 md:px-8 pt-8 md:pt-12 pb-6">
           <div className="flex items-center justify-between">

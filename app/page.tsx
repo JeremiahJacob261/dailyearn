@@ -9,9 +9,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white flex flex-col relative overflow-x-hidden">
       {/* Theme Toggle */}
-      <div className="flex justify-end px-6 pt-6">
-        <ThemeToggle />
-      </div>
+    
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-6">
         <span className="text-black dark:text-white text-2xl font-bold tracking-tight">Daily earn</span>

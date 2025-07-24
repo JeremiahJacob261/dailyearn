@@ -194,7 +194,7 @@ export default function Tasks() {
               className="w-auto h-auto bg-stone-600 p-2 rounded-full hover:bg-stone-700 transition-colors"
             />
           </button>
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Earn money</h1>
+          <h1 className="text-2xl font-semibold text-gray-500 dark:text-gray-100">Earn money</h1>
         </div>
 
         {/* Complete Tasks Card */}

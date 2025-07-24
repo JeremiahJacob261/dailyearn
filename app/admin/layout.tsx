@@ -105,7 +105,7 @@ export default function AdminLayout({ children }: SettingsLayoutProps) {
             <h1 className="text-lg font-semibold text-foreground">Admin Panel</h1>
           </div>
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
+        
             <Button variant="ghost" size="sm">
               <Bell className="w-4 h-4" />
             </Button>
@@ -141,7 +141,6 @@ export default function AdminLayout({ children }: SettingsLayoutProps) {
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 <Bell className="w-4 h-4" />
               </Button>
-              <ThemeToggle />
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 <Settings className="w-4 h-4" onClick={()=>{ 
                   router.push('/admin/settings')

@@ -215,7 +215,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-500">Dashboard</h1>
           <p className="text-gray-600 mt-1">
             Welcome back! Here's what's happening with your platform.
           </p>
@@ -252,7 +252,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-600 mb-1">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-gray-500">
                       {stats.loading ? (
                         <div className="h-8 w-16 bg-gray-200 rounded animate-pulse" />
                       ) : (
@@ -288,26 +288,26 @@ export default function AdminDashboard() {
         {/* Quick Actions */}
         <Card className="bg-white border-gray-200">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+            <CardTitle className="text-lg font-semibold text-gray-500 flex items-center">
               <Activity className="w-5 h-5 mr-2 text-blue-600" />
               Quick Actions
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Link href="/admin/tasks">
-              <Button className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white">
+              <Button className="w-full justify-start bg-blue-600  text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create New Task
               </Button>
             </Link>
             <Link href="/admin/users">
-              <Button variant="outline" className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50">
+              <Button variant="outline" className="w-full justify-start border-gray-300 text-gray-700">
                 <Users className="w-4 h-4 mr-2" />
                 Manage Users
               </Button>
             </Link>
             <Link href="/admin/payouts">
-              <Button variant="outline" className="w-full justify-start border-gray-300 text-gray-700 hover:bg-gray-50">
+              <Button variant="outline" className="w-full justify-start border-gray-300 text-gray-700 ">
                 <CreditCard className="w-4 h-4 mr-2" />
                 Process Payouts
               </Button>
@@ -318,7 +318,7 @@ export default function AdminDashboard() {
         {/* Recent Activity */}
         <Card className="bg-white border-gray-200">
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+            <CardTitle className="text-lg font-semibold text-gray-500 flex items-center">
               <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
               Recent Activity
             </CardTitle>
@@ -338,7 +338,7 @@ export default function AdminDashboard() {
                 <div key={activity.id} className={`flex items-center space-x-3 p-3 ${activity.bgColor} rounded-lg border`}>
                   <div className={`w-2 h-2 ${activity.color} rounded-full`}></div>
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{activity.message}</p>
+                    <p className="text-sm font-medium text-gray-500">{activity.message}</p>
                     <p className="text-xs text-gray-600">
                       {formatRelativeTime(activity.timestamp)}
                     </p>
@@ -352,7 +352,7 @@ export default function AdminDashboard() {
               <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200 mt-4">
                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-500">
                     {stats.pendingPayouts} pending payout{stats.pendingPayouts > 1 ? 's' : ''} require attention
                   </p>
                   <p className="text-xs text-gray-600">Review and process pending payments</p>
@@ -366,24 +366,24 @@ export default function AdminDashboard() {
       {/* Performance Overview */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900">Platform Overview</CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-500">Platform Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-gray-900">{stats.verifiedUsers}</p>
+              <p className="text-2xl font-bold text-gray-500">{stats.verifiedUsers}</p>
               <p className="text-sm text-gray-600">Verified Users</p>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-gray-900">{stats.users - stats.verifiedUsers}</p>
+              <p className="text-2xl font-bold text-gray-500">{stats.users - stats.verifiedUsers}</p>
               <p className="text-sm text-gray-600">Unverified Users</p>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-gray-900">{stats.pendingPayouts}</p>
+              <p className="text-2xl font-bold text-gray-500">{stats.pendingPayouts}</p>
               <p className="text-sm text-gray-600">Pending Payouts</p>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-gray-900">{stats.payouts - stats.pendingPayouts}</p>
+              <p className="text-2xl font-bold text-gray-500">{stats.payouts - stats.pendingPayouts}</p>
               <p className="text-sm text-gray-600">Completed Payouts</p>
             </div>
           </div>

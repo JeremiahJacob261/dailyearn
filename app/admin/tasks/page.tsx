@@ -282,7 +282,7 @@ export default function AdminTasksPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Task Management</h1>
+          <h1 className="text-3xl font-bold text-gray-500">Task Management</h1>
           <p className="text-gray-600 mt-1">Create and manage tasks for users to complete</p>
         </div>
         
@@ -309,7 +309,7 @@ export default function AdminTasksPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Tasks</p>
-                <p className="text-2xl font-bold text-gray-900">{tasks.length}</p>
+                <p className="text-2xl font-bold text-gray-500">{tasks.length}</p>
               </div>
               <CheckSquare className="w-8 h-8 text-blue-600" />
             </div>
@@ -321,7 +321,7 @@ export default function AdminTasksPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Tasks</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-500">
                   {tasks.filter(t => t.status === 'active').length}
                 </p>
               </div>
@@ -335,7 +335,7 @@ export default function AdminTasksPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Completions</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-500">
                   {tasks.reduce((sum, task) => sum + (task.completions || 0), 0)}
                 </p>
               </div>
@@ -349,7 +349,7 @@ export default function AdminTasksPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Rewards</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-500">
                   ₦{tasks.reduce((sum, task) => sum + task.reward, 0).toLocaleString()}
                 </p>
               </div>
@@ -396,7 +396,7 @@ export default function AdminTasksPage() {
       {/* Tasks Table */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Tasks</CardTitle>
+          <CardTitle className="text-gray-500">Tasks</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -422,7 +422,7 @@ export default function AdminTasksPage() {
                     <TableRow key={task.id} className="hover:bg-gray-50">
                       <TableCell>
                         <div>
-                          <p className="font-medium text-gray-900">{task.title}</p>
+                          <p className="font-medium text-gray-500">{task.title}</p>
                           <p className="text-sm text-gray-600 truncate max-w-xs">
                             {task.description}
                           </p>
@@ -433,9 +433,9 @@ export default function AdminTasksPage() {
                           {task.category}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-gray-900 font-medium">₦{task.reward}</TableCell>
+                      <TableCell className="text-gray-500 font-medium">₦{task.reward}</TableCell>
                       <TableCell>{getStatusBadge(task.status)}</TableCell>
-                      <TableCell className="text-gray-900">{task.completions || 0}</TableCell>
+                      <TableCell className="text-gray-500">{task.completions || 0}</TableCell>
                       <TableCell className="text-gray-600">
                         {new Date(task.created_at).toLocaleDateString()}
                       </TableCell>

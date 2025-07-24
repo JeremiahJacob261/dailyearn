@@ -90,15 +90,15 @@ export default function AdminSettingsPage() {
           <Settings className="w-6 h-6 text-blue-600" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">App Settings</h1>
+          <h1 className="text-3xl font-bold text-gray-500">App Settings</h1>
           <p className="text-gray-600 mt-1">Configure application behavior and timing</p>
         </div>
       </div>
 
       {/* Settings Card */}
-      <Card className="bg-white border-gray-200">
+      <Card className="bg-transparent border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Task Settings</CardTitle>
+          <CardTitle className="text-gray-500">Task Settings</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Reward Delay Setting */}
@@ -179,16 +179,16 @@ export default function AdminSettingsPage() {
 
           {/* Current Settings Display */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-gray-900 mb-2">Current Settings</h3>
+            <h3 className="font-semibold text-gray-500 mb-2">Current Settings</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span className="font-medium">Reward Delay:</span> {rewardDelay} seconds
+              <div className="text-gray-500">
+                <span className="font-medium text-gray-500">Reward Delay:</span> {rewardDelay} seconds
               </div>
-              <div>
-                <span className="font-medium">Task Cooldown:</span> {cooldownTime} seconds
+              <div className="text-gray-500">
+                <span className="font-medium text-gray-500">Task Cooldown:</span> {cooldownTime} seconds
               </div>
-              <div>
-                <span className="font-medium">Min Withdrawal:</span> ₦{parseInt(minWithdrawal).toLocaleString()}
+              <div className="text-gray-500">
+                <span className="font-medium text-gray-500">Min Withdrawal:</span> ₦{parseInt(minWithdrawal).toLocaleString()}
               </div>
             </div>
           </div>

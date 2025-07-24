@@ -169,7 +169,7 @@ export default function AdminPayoutsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Payout Management</h1>
+          <h1 className="text-3xl font-bold text-gray-500">Payout Management</h1>
           <p className="text-gray-600 mt-1">Process and manage user payout requests</p>
         </div>
         
@@ -192,7 +192,7 @@ export default function AdminPayoutsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Payouts</p>
-                <p className="text-2xl font-bold text-gray-900">{payouts.length}</p>
+                <p className="text-2xl font-bold text-gray-500">{payouts.length}</p>
               </div>
               <CreditCard className="w-8 h-8 text-blue-600" />
             </div>
@@ -204,7 +204,7 @@ export default function AdminPayoutsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{totalPending}</p>
+                <p className="text-2xl font-bold text-gray-500">{totalPending}</p>
               </div>
               <Clock className="w-8 h-8 text-yellow-600" />
             </div>
@@ -216,7 +216,7 @@ export default function AdminPayoutsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">{totalCompleted}</p>
+                <p className="text-2xl font-bold text-gray-500">{totalCompleted}</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
@@ -228,7 +228,7 @@ export default function AdminPayoutsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                <p className="text-2xl font-bold text-gray-900">₦{totalAmount.toLocaleString()}</p>
+                <p className="text-2xl font-bold text-gray-500">₦{totalAmount.toLocaleString()}</p>
               </div>
               <DollarSign className="w-8 h-8 text-purple-600" />
             </div>
@@ -293,7 +293,7 @@ export default function AdminPayoutsPage() {
       {/* Payouts Table */}
       <Card className="bg-white border-gray-200">
         <CardHeader>
-          <CardTitle className="text-gray-900">Payout Requests</CardTitle>
+          <CardTitle className="text-gray-500">Payout Requests</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -327,14 +327,14 @@ export default function AdminPayoutsPage() {
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="font-medium text-gray-900">
+                              <p className="font-medium text-gray-500">
                                 {user?.full_name || 'Unknown User'}
                               </p>
                               <p className="text-sm text-gray-600">{user?.email}</p>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-gray-900 font-medium">
+                        <TableCell className="text-gray-500 font-medium">
                           ₦{payout.amount.toLocaleString()}
                         </TableCell>
                         <TableCell>{getMethodBadge(payout.method)}</TableCell>
@@ -427,33 +427,33 @@ export default function AdminPayoutsPage() {
               {/* User Information */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">User Information</h3>
+                  <h3 className="font-medium text-gray-500 mb-2">User Information</h3>
                   <div className="space-y-2">
                     <p className="text-sm">
                       <span className="text-gray-600">Name:</span>{' '}
-                      <span className="text-gray-900">{(selectedPayout.user as any)?.full_name}</span>
+                      <span className="text-gray-500">{(selectedPayout.user as any)?.full_name}</span>
                     </p>
                     <p className="text-sm">
                       <span className="text-gray-600">Email:</span>{' '}
-                      <span className="text-gray-900">{(selectedPayout.user as any)?.email}</span>
+                      <span className="text-gray-500">{(selectedPayout.user as any)?.email}</span>
                     </p>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Payout Information</h3>
+                  <h3 className="font-medium text-gray-500 mb-2">Payout Information</h3>
                   <div className="space-y-2">
                     <p className="text-sm">
                       <span className="text-gray-600">Amount:</span>{' '}
-                      <span className="text-gray-900 font-medium">₦{selectedPayout.amount.toLocaleString()}</span>
+                      <span className="text-gray-500 font-medium">₦{selectedPayout.amount.toLocaleString()}</span>
                     </p>
                     <p className="text-sm">
                       <span className="text-gray-600">Reference:</span>{' '}
-                      <span className="text-gray-900 font-mono">{selectedPayout.reference}</span>
+                      <span className="text-gray-500 font-mono">{selectedPayout.reference}</span>
                     </p>
                     {/* <p className="text-sm">
                       <span className="text-gray-600">Method:</span>{' '}
-                      <span className="text-gray-900">{selectedPayout?.method.replace('_', ' ')}</span>
+                      <span className="text-gray-500">{selectedPayout?.method.replace('_', ' ')}</span>
                     </p> */}
                     <p className="text-sm">
                       <span className="text-gray-600">Status:</span>{' '}
@@ -465,23 +465,23 @@ export default function AdminPayoutsPage() {
 
               {/* Account Details */}
               <div>
-                <h3 className="font-medium text-gray-900 mb-2">Account Details</h3>
+                <h3 className="font-medium text-gray-500 mb-2">Account Details</h3>
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Account Name:</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-500">
                       {selectedPayout.account_name || 'N/A'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Account Number:</span>
-                    <span className="text-sm font-medium text-gray-900 font-mono">
+                    <span className="text-sm font-medium text-gray-500 font-mono">
                       {selectedPayout.account_number || 'N/A'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Bank:</span>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-500">
                       {selectedPayout.bank || 'N/A'}
                     </span>
                   </div>
@@ -491,18 +491,18 @@ export default function AdminPayoutsPage() {
               {/* Timestamps */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Timeline</h3>
+                  <h3 className="font-medium text-gray-500 mb-2">Timeline</h3>
                   <div className="space-y-2">
                     <p className="text-sm">
                       <span className="text-gray-600">Requested:</span>{' '}
-                      <span className="text-gray-900">
+                      <span className="text-gray-500">
                         {new Date(selectedPayout.created_at).toLocaleString()}
                       </span>
                     </p>
                     {selectedPayout.processed_at && (
                       <p className="text-sm">
                         <span className="text-gray-600">Processed:</span>{' '}
-                        <span className="text-gray-900">
+                        <span className="text-gray-500">
                           {new Date(selectedPayout.processed_at).toLocaleString()}
                         </span>
                       </p>
@@ -514,7 +514,7 @@ export default function AdminPayoutsPage() {
               {/* Admin Notes Input (for pending status) */}
               {selectedPayout.status === 'pending' && (
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Admin Notes</h3>
+                  <h3 className="font-medium text-gray-500 mb-2">Admin Notes</h3>
                   <textarea
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
@@ -531,7 +531,7 @@ export default function AdminPayoutsPage() {
               {/* Existing Admin Notes (for processed payouts) */}
               {selectedPayout.admin_notes && (
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-2">Admin Notes</h3>
+                  <h3 className="font-medium text-gray-500 mb-2">Admin Notes</h3>
                   <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
                     <p className="text-sm text-gray-700">{selectedPayout.admin_notes}</p>
                   </div>

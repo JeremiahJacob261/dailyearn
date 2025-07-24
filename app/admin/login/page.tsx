@@ -48,7 +48,7 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
+          <h1 className="text-2xl font-bold text-gray-500">Admin Login</h1>
           <p className="text-gray-600 mt-2">
             Sign in to access the admin dashboard
           </p>
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
 
         <Card className="border-gray-200 shadow-lg">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-xl text-center text-gray-900">
+            <CardTitle className="text-xl text-center text-gray-500">
               Secure Access
             </CardTitle>
             <CardDescription className="text-center text-gray-600">
@@ -141,7 +141,7 @@ export default function AdminLoginPage() {
           <Button
             variant="ghost"
             onClick={() => router.push('/')}
-            className="text-gray-600 hover:text-gray-900"
+            className="text-gray-600 hover:text-gray-500"
           >
             ← Back to main site
           </Button>

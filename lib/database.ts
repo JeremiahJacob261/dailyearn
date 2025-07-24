@@ -635,4 +635,32 @@ export const databaseService = {
       throw error;
     }
   },
+
+  async deleteUser(userId: string) {
+    try {
+      const { error } = await supabase
+        .from('dailyearn_users')
+        .delete()
+        .eq('id', userId);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  },
+
+  async updateUserByAdmin(userId: string, updates: { full_name?: string; email?: string; balance?: number }) {
+    try {
+      const { error } = await supabase
+        .from('dailyearn_users')
+        .update(updates)
+        .eq('id', userId);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating user by admin:', error);
+      throw error;
+    }
+  },
 }
