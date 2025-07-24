@@ -44,8 +44,7 @@ export default function ProfilePage() {
   };
 
   const handleEditProfile = () => {
-    // Placeholder for edit profile
-    alert("Edit profile coming soon!");
+    router.push("/profile/edit");
   };
   const handleLogout = () => {
     // Placeholder for logout

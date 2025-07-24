@@ -606,4 +606,18 @@ export const databaseService = {
       throw error;
     }
   },
+
+  async updateUserProfile(userId: string, fullName: string, email: string) {
+    try {
+      const { error } = await supabase
+        .from('dailyearn_users')
+        .update({ full_name: fullName, email })
+        .eq('id', userId);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  },
 }
