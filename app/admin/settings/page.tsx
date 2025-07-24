@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Save, Settings } from "lucide-react"
 import { databaseService } from "@/lib/database"
+import bcrypt from "bcryptjs"
 
 export default function AdminSettingsPage() {
   const [rewardDelay, setRewardDelay] = useState("10")
@@ -15,6 +16,13 @@ export default function AdminSettingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
+
+  // Admin password change state
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [passwordMessage, setPasswordMessage] = useState("")
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
 
   useEffect(() => {
     loadSettings()
@@ -71,6 +79,50 @@ export default function AdminSettingsPage() {
       setSaveMessage("Error saving settings. Please try again.")
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPasswordMessage("")
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordMessage("All fields are required.")
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("New passwords do not match.")
+      return
+    }
+    if (newPassword.length < 6) {
+      setPasswordMessage("Password must be at least 6 characters.")
+      return
+    }
+    setIsChangingPassword(true)
+    try {
+      // Fetch admin record (assume username = 'admin')
+      const admin = await databaseService.getAdminByUsername('admin')
+      if (!admin) {
+        setPasswordMessage("Admin not found.")
+        setIsChangingPassword(false)
+        return
+      }
+      const valid = await bcrypt.compare(currentPassword, admin.password_hash)
+      if (!valid) {
+        setPasswordMessage("Current password is incorrect.")
+        setIsChangingPassword(false)
+        return
+      }
+      const newHash = await bcrypt.hash(newPassword, 10)
+      await databaseService.updateAdminPassword(admin.id, newHash)
+      setPasswordMessage("Password changed successfully!")
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch (err) {
+      console.log(err)
+      setPasswordMessage("Error changing password. Please try again.")
+    } finally {
+      setIsChangingPassword(false)
     }
   }
 
@@ -192,6 +244,53 @@ export default function AdminSettingsPage() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Change Admin Password Card */}
+      <Card className="bg-transparent border-gray-200 mt-8">
+        <CardHeader>
+          <CardTitle className="text-gray-500">Change Admin Password</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4 max-w-md" onSubmit={handleChangePassword}>
+            <div>
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={currentPassword}
+                onChange={e => setCurrentPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+            {passwordMessage && (
+              <p className={`text-sm ${passwordMessage.includes("success") ? "text-green-600" : "text-red-600"}`}>{passwordMessage}</p>
+            )}
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white" disabled={isChangingPassword}>
+              {isChangingPassword ? "Changing..." : "Change Password"}
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>

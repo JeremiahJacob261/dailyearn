@@ -9,7 +9,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white flex flex-col relative overflow-x-hidden">
       {/* Theme Toggle */}
-    
+      
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-6">
         <span className="text-black dark:text-white text-2xl font-bold tracking-tight">Daily earn</span>
@@ -57,6 +57,6 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
-    </div>
+        </div>
   )
 }

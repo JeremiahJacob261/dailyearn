@@ -212,28 +212,23 @@ export const authService = {
   }
 }
 
-// Admin credentials - in production, store this in environment variables
-const ADMIN_CREDENTIALS = {
-  username: 'admin',
-  // Pre-hashed password for 'dailyearn'
-  passwordHash: '$2b$10$4SqWhZyANghRPxWCJ1Bx0.fFMo7RA86KNFoFJQR.3TZU0E5UBNUKe'
-}
-
 export const adminAuthService = {
   async signIn(data: AdminSignInData) {
     try {
-      // Check username
-      if (data.username !== ADMIN_CREDENTIALS.username) {
+      // Fetch admin record from Supabase
+      const { data: admin, error } = await supabase
+        .from('dailyearn_admins')
+        .select('*')
+        .eq('username', data.username)
+        .single()
+      if (error || !admin) {
         throw new Error('Invalid username or password')
       }
-
       // Verify password
-      const isValidPassword = await bcrypt.compare(data.password, ADMIN_CREDENTIALS.passwordHash)
-      
+      const isValidPassword = await bcrypt.compare(data.password, admin.password_hash)
       if (!isValidPassword) {
         throw new Error('Invalid username or password')
       }
-
       // Store admin session
       if (typeof window !== 'undefined') {
         localStorage.setItem('adminSession', JSON.stringify({
@@ -242,7 +237,6 @@ export const adminAuthService = {
           loginTime: new Date().toISOString()
         }))
       }
-
       return { success: true, admin: { username: data.username, role: 'admin' } }
     } catch (error) {
       throw error
@@ -258,24 +252,19 @@ export const adminAuthService = {
 
   isAuthenticated() {
     if (typeof window === 'undefined') return false
-    
     const session = localStorage.getItem('adminSession')
     if (!session) return false
-    
     try {
       const adminData = JSON.parse(session)
-      return adminData.username === ADMIN_CREDENTIALS.username
+      return !!adminData.username
     } catch {
       return false
     }
   },
-
   getSession() {
     if (typeof window === 'undefined') return null
-    
     const session = localStorage.getItem('adminSession')
     if (!session) return null
-    
     try {
       return JSON.parse(session)
     } catch {

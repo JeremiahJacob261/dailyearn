@@ -55,7 +55,7 @@ export default function AdminDashboard() {
     verifiedUsers: 0,
     loading: true,
   })
-  
+
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
   const [activityLoading, setActivityLoading] = useState(true)
 
@@ -64,7 +64,7 @@ export default function AdminDashboard() {
   }
   
   const fetchStats = async () => {
-    setStats(s => ({ ...s, loading: true }))
+      setStats(s => ({ ...s, loading: true }))
     try {
       const users = await databaseService.getAllUsers()
       const tasks = await databaseService.getAllTasks()
@@ -275,8 +275,8 @@ export default function AdminDashboard() {
                   </div>
                   <div className={`${stat.bgColor} p-3 rounded-lg`}>
                     <Icon className={`w-6 h-6 ${stat.color}`} />
-                  </div>
-                </div>
+        </div>
+        </div>
               </CardContent>
             </Card>
           )

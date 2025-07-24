@@ -663,4 +663,33 @@ export const databaseService = {
       throw error;
     }
   },
+
+  async getAdminByUsername(username: string) {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_admins')
+        .select('*')
+        .eq('username', username)
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching admin by username:', error);
+      return null;
+    }
+  },
+
+  async updateAdminPassword(adminId: string, newPasswordHash: string) {
+    try {
+      const { error } = await supabase
+        .from('dailyearn_admins')
+        .update({ password_hash: newPasswordHash })
+        .eq('id', adminId);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating admin password:', error);
+      throw error;
+    }
+  },
 }
