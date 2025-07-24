@@ -58,6 +58,21 @@ export const databaseService = {
     }
   },
 
+  async getUserByEmail(email: string) {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_users')
+        .select('*')
+        .eq('email', email)
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching user by email:', error);
+      return null;
+    }
+  },
+
   async getUserReferrals(userId: string): Promise<ReferralData[]> {
     try {
       const { data, error } = await supabase

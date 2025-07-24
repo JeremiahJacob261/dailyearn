@@ -60,7 +60,7 @@ export default function SignIn() {
       {/* Header */}
       <div className="flex justify-between items-center px-6 md:px-8 pt-8 md:pt-12 pb-6">
         <h1 className="text-3xl md:text-4xl font-semibold text-black dark:text-stone-400">Sign in</h1>
-        <button onClick={() => router.push("/")} className="flex items-center text-gray-500 dark:text-stone-400 text-lg md:text-xl">
+        <button onClick={() => router.push("/register")} className="flex items-center text-gray-500 dark:text-stone-400 text-lg md:text-xl">
           Create account
           <ChevronRight className="w-5 h-5 ml-1" />
         </button>

@@ -23,11 +23,8 @@ export default function ForgotPasswordPage() {
     setError("");
     try {
       // Find user by email
-      const { data, error: dbError } = await databaseService.supabase
-        .from("dailyearn_users")
-        .select("full_name")
-        .eq("email", email)
-        .single();
+      const { data, error: dbError } = await databaseService
+        .getUserByEmail(email);
       if (dbError || !data) {
         setError("No user found with that email.");
         setIsLoading(false);
@@ -52,11 +49,7 @@ export default function ForgotPasswordPage() {
     setError("");
     try {
       // Validate full name
-      const { data, error: dbError } = await databaseService.supabase
-        .from("dailyearn_users")
-        .select("id, full_name")
-        .eq("email", email)
-        .single();
+      const { data, error: dbError } = await databaseService.getUserByEmail(email);
       if (dbError || !data) {
         setError("No user found with that email.");
         setIsLoading(false);
