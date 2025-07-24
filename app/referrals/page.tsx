@@ -102,7 +102,8 @@ export default function Referrals() {
               {userData?.full_name || "-"}
             </h3>
             <p className="text-gray-500 dark:text-gray-400 text-base md:text-lg">
-              {stats.totalReferrals} referrals, ₦{stats.totalEarnings.toLocaleString()} payout
+              {stats.totalReferrals} referrals, ₦{stats.totalEarnings.toLocaleString()} payout<br/>
+              ₦50 per referral
             </p>
           </div>
         </div>
@@ -118,7 +119,7 @@ export default function Referrals() {
               </div>
               <button
                 onClick={copyReferralCode}
-                className="mt-2 px-8 py-3 rounded-full bg-stone-800 dark:bg-white dark:text-dark text-white text-lg font-semibold shadow hover:scale-105 transition-all"
+                className="mt-2 px-8 py-3 rounded-full bg-white text-black text-lg font-semibold shadow hover:scale-105 transition-all"
               >
                 Copy code
               </button>

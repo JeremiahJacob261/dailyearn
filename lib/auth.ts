@@ -118,6 +118,30 @@ export const authService = {
     }
   },
 
+  async verifyUserPassword(userId: string, password: string) {
+    try {
+      const { data: user, error } = await supabase
+        .from('dailyearn_users')
+        .select('password_hash')
+        .eq('id', userId)
+        .single()
+
+      if (error || !user) {
+        throw new Error('User not found')
+      }
+
+      const isValidPassword = await bcrypt.compare(password, user.password_hash)
+      
+      if (!isValidPassword) {
+        throw new Error('Invalid password')
+      }
+
+      return true
+    } catch (error) {
+      throw error
+    }
+  },
+
   async verifyEmail(code: string) {
     try {
       const { data: verificationData, error } = await supabase
@@ -185,25 +209,41 @@ export const authService = {
         throw new Error('Invalid referral code')
       }
 
+      // Get the current referral reward amount from settings
+      const { databaseService } = await import('./database')
+      const rewardAmount = await databaseService.getReferralRewardAmount()
+
       // Create referral record
       const { error: referralError } = await supabase
         .from('dailyearn_referrals')
         .insert({
           referrer_id: referrer.id,
           referred_id: referredUserId,
-          reward_amount: 10.00 // 10 naira reward
+          reward_amount: rewardAmount
         })
 
       if (referralError) throw referralError
 
-      // Update referrer's balance - add 10 naira
+      // Update referrer's balance - add reward amount
       const { error: balanceError } = await supabase
         .rpc('increment_balance', {
           user_id: referrer.id,
-          amount: 10.00
+          amount: rewardAmount
         })
 
       if (balanceError) throw balanceError
+
+      // Create a transaction record for the referral reward
+      const { error: transactionError } = await supabase
+        .from('dailyearn_transactions')
+        .insert({
+          user_id: referrer.id,
+          type: 'referral',
+          amount: rewardAmount,
+          description: `Referral bonus for inviting a new user (₦${rewardAmount})`
+        })
+
+      if (transactionError) throw transactionError
 
       return true
     } catch (error) {

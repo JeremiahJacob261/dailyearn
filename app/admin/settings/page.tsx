@@ -13,6 +13,7 @@ export default function AdminSettingsPage() {
   const [rewardDelay, setRewardDelay] = useState("10")
   const [cooldownTime, setCooldownTime] = useState("20")
   const [minWithdrawal, setMinWithdrawal] = useState("5000")
+  const [referralReward, setReferralReward] = useState("50")
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
@@ -35,6 +36,7 @@ export default function AdminSettingsPage() {
       setRewardDelay(settings.task_reward_delay_seconds || "10")
       setCooldownTime(settings.task_cooldown_seconds || "20")
       setMinWithdrawal(settings.minimum_withdrawal_amount || "5000")
+      setReferralReward(settings.referral_reward_amount || "50")
     } catch (error) {
       console.error("Error loading settings:", error)
     } finally {
@@ -51,6 +53,7 @@ export default function AdminSettingsPage() {
       const delayValue = parseInt(rewardDelay, 10)
       const cooldownValue = parseInt(cooldownTime, 10)
       const minWithdrawalValue = parseInt(minWithdrawal, 10)
+      const referralRewardValue = parseInt(referralReward, 10)
 
       if (isNaN(delayValue) || delayValue < 1 || delayValue > 300) {
         setSaveMessage("Reward delay must be between 1 and 300 seconds")
@@ -67,10 +70,16 @@ export default function AdminSettingsPage() {
         return
       }
 
+      if (isNaN(referralRewardValue) || referralRewardValue < 10 || referralRewardValue > 10000) {
+        setSaveMessage("Referral reward must be between ₦10 and ₦10,000")
+        return
+      }
+
       // Save settings
       await databaseService.updateSetting("task_reward_delay_seconds", rewardDelay)
       await databaseService.updateSetting("task_cooldown_seconds", cooldownTime)
       await databaseService.updateSetting("minimum_withdrawal_amount", minWithdrawal)
+      await databaseService.updateSetting("referral_reward_amount", referralReward)
 
       setSaveMessage("Settings saved successfully!")
       setTimeout(() => setSaveMessage(""), 3000)
@@ -207,6 +216,24 @@ export default function AdminSettingsPage() {
             </p>
           </div>
 
+          {/* Referral Reward Amount Setting */}
+          <div className="space-y-2">
+            <Label htmlFor="referralReward">Referral Reward Amount (₦)</Label>
+            <Input
+              id="referralReward"
+              type="number"
+              min="10"
+              max="10000"
+              value={referralReward}
+              onChange={(e) => setReferralReward(e.target.value)}
+              placeholder="50"
+              className="max-w-xs"
+            />
+            <p className="text-sm text-gray-600">
+              Amount to reward users for successful referrals (₦10 - ₦10,000)
+            </p>
+          </div>
+
           {/* Save Button */}
           <div className="flex items-center gap-4 pt-4">
             <Button
@@ -232,7 +259,7 @@ export default function AdminSettingsPage() {
           {/* Current Settings Display */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h3 className="font-semibold text-gray-500 mb-2">Current Settings</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
               <div className="text-gray-500">
                 <span className="font-medium text-gray-500">Reward Delay:</span> {rewardDelay} seconds
               </div>
@@ -241,6 +268,9 @@ export default function AdminSettingsPage() {
               </div>
               <div className="text-gray-500">
                 <span className="font-medium text-gray-500">Min Withdrawal:</span> ₦{parseInt(minWithdrawal).toLocaleString()}
+              </div>
+              <div className="text-gray-500">
+                <span className="font-medium text-gray-500">Referral Reward:</span> ₦{parseInt(referralReward).toLocaleString()}
               </div>
             </div>
           </div>

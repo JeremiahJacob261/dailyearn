@@ -143,7 +143,7 @@ export const databaseService = {
           }
         }
         acc[referrerId].count += 1
-        acc[referrerId].earnings += 10 // 10 naira per referral
+        acc[referrerId].earnings += 50 // 50 naira per referral
         return acc
       }, {} as any) || {}
 
@@ -551,6 +551,16 @@ export const databaseService = {
     } catch (error) {
       console.error('Error fetching minimum withdrawal amount:', error);
       return 5000; // Default fallback
+    }
+  },
+
+  async getReferralRewardAmount(): Promise<number> {
+    try {
+      const rewardAmount = await this.getSetting('referral_reward_amount');
+      return parseInt(rewardAmount || '50', 10);
+    } catch (error) {
+      console.error('Error fetching referral reward amount:', error);
+      return 50; // Default fallback
     }
   },
 

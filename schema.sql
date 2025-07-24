@@ -51,7 +51,8 @@ CREATE TABLE dailyearn_settings (
 INSERT INTO dailyearn_settings (setting_key, setting_value, description) VALUES
 ('task_reward_delay_seconds', '10', 'Number of seconds users must wait before receiving task rewards'),
 ('task_cooldown_seconds', '20', 'Number of seconds users must wait before attempting the same task again'),
-('minimum_withdrawal_amount', '5000', 'Minimum amount users can withdraw in naira');
+('minimum_withdrawal_amount', '5000', 'Minimum amount users can withdraw in naira'),
+('referral_reward_amount', '50', 'Amount in naira to reward users for successful referrals');
 
 -- Add this function to your schema
 CREATE OR REPLACE FUNCTION increment_balance(user_id UUID, amount DECIMAL)
