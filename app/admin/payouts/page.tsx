@@ -52,6 +52,9 @@ interface Payout {
   status: 'pending' | 'approved' | 'completed' | 'rejected'
   method: 'bank_transfer' | 'mobile_money' | 'paypal'
   account_details: any
+  bank:string
+  account_name:string
+  account_number:string
   created_at: string
   processed_at?: string
   reference: string
@@ -448,10 +451,10 @@ export default function AdminPayoutsPage() {
                       <span className="text-gray-600">Reference:</span>{' '}
                       <span className="text-gray-900 font-mono">{selectedPayout.reference}</span>
                     </p>
-                    <p className="text-sm">
+                    {/* <p className="text-sm">
                       <span className="text-gray-600">Method:</span>{' '}
-                      <span className="text-gray-900">{selectedPayout.method.replace('_', ' ')}</span>
-                    </p>
+                      <span className="text-gray-900">{selectedPayout?.method.replace('_', ' ')}</span>
+                    </p> */}
                     <p className="text-sm">
                       <span className="text-gray-600">Status:</span>{' '}
                       {getStatusBadge(selectedPayout.status)}
@@ -467,19 +470,19 @@ export default function AdminPayoutsPage() {
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Account Name:</span>
                     <span className="text-sm font-medium text-gray-900">
-                      {selectedPayout.account_details?.accountName || 'N/A'}
+                      {selectedPayout.account_name || 'N/A'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Account Number:</span>
                     <span className="text-sm font-medium text-gray-900 font-mono">
-                      {selectedPayout.account_details?.accountNumber || 'N/A'}
+                      {selectedPayout.account_number || 'N/A'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Bank:</span>
                     <span className="text-sm font-medium text-gray-900">
-                      {selectedPayout.account_details?.bank || 'N/A'}
+                      {selectedPayout.bank || 'N/A'}
                     </span>
                   </div>
                 </div>
