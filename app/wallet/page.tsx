@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { MobileLayout } from "@/components/mobile-layout";
 import { ScrollingTicker } from "@/components/scrolling-ticker";
 import { BottomNavigation } from "@/components/bottom-navigation";
+import { PayoutItem } from "@/components/payout-item";
 import { databaseService } from "@/lib/database";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,9 +17,11 @@ export default function WalletPage() {
   const [balance, setBalance] = useState(0);
   const [recentPayouts, setRecentPayouts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [minWithdrawalAmount, setMinWithdrawalAmount] = useState(5000);
 
   useEffect(() => {
     loadUserData();
+    loadMinWithdrawalAmount();
   }, []);
 
   useEffect(() => {
@@ -26,6 +29,16 @@ export default function WalletPage() {
       loadRecentPayouts(userData.id);
     }
   }, [userData]);
+
+  const loadMinWithdrawalAmount = async () => {
+    try {
+      const minAmount = await databaseService.getMinimumWithdrawalAmount();
+      setMinWithdrawalAmount(minAmount);
+    } catch (error) {
+      console.error("Error loading minimum withdrawal amount:", error);
+      setMinWithdrawalAmount(5000); // Fallback
+    }
+  };
 
   const loadUserData = async () => {
     try {
@@ -61,7 +74,7 @@ export default function WalletPage() {
   };
 
   const handlePayoutClick = () => {
-    if (balance >= 5000) router.push("/wallet/payout");
+    if (balance >= minWithdrawalAmount) router.push("/wallet/payout");
   };
 
   const handleReferralsClick = () => {
@@ -153,9 +166,9 @@ export default function WalletPage() {
           <div className="flex flex-col items-center">
             <button
               onClick={handlePayoutClick}
-              disabled={balance < 5000}
+              disabled={balance < minWithdrawalAmount}
               className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 ${
-                balance < 5000
+                balance < minWithdrawalAmount
                   ? "bg-[#222] opacity-50"
                   : "bg-[#222] hover:bg-[#333]"
               }`}
@@ -193,17 +206,17 @@ export default function WalletPage() {
         </div>
 
         {/* Payout unavailable warning */}
-        {balance < 5000 && (
+        {balance < minWithdrawalAmount && (
           <div className="bg-yellow-900 bg-opacity-80 border-l-4 border-yellow-400 text-yellow-200 px-4 py-3 mb-6 rounded flex items-center gap-3">
-            <svg className="w-6 h-6 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" /></svg>
+            <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
             <div>
-              <span className="font-semibold">Payout unavailable</span><br />
-              <span>You have not reached the payout threshold of ₦5000</span>
+              <p className="font-medium">Minimum payout not reached</p>
+              <p className="text-sm">You need at least ₦{minWithdrawalAmount.toLocaleString()} to request a payout.</p>
             </div>
           </div>
-        )}
-
-        {/* Empty state for payouts */}
+        )}        {/* Empty state for payouts */}
         {recentPayouts.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[220px] w-full">
             <div className="text-black dark:text-stone-400 text-2xl md:text-3xl font-bold text-center mb-6">
@@ -227,33 +240,22 @@ export default function WalletPage() {
             {recentPayouts.length === 0 ? (
               <p className="text-gray-400">No payouts yet.</p>
             ) : (
-              recentPayouts.map((payout, index) => (
-                <div
-                  key={payout.id || index}
-                  className="flex items-center gap-4 bg-[#181818] rounded-xl p-4"
-                >
-                  <div className="w-12 h-12 bg-lime-400 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <img
-                      src="icons/dollar-bag.svg"
-                      alt="Payout"
-                      className="w-7 h-7"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-white dark:text-stone-400 text-lg font-semibold">
-                      Payout 1
-                    </h3>
-                    <p className="text-gray-400 text-sm">Watch ad and earn</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white dark:text-stone-400 text-lg font-semibold">
-                      ₦{Number(payout.amount).toLocaleString()}
-                    </p>
-                    <p className="text-gray-400 text-sm">
-                      {new Date(payout.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
+              recentPayouts.map((payout) => (
+                <PayoutItem
+                  key={payout.id}
+                  amount={Number(payout.amount)}
+                  status={payout.status}
+                  method={payout.method}
+                  reference={payout.reference || `PAY-${payout.id.substring(0, 8).toUpperCase()}`}
+                  requestedAt={payout.created_at}
+                  processedAt={payout.processed_at}
+                  adminNotes={payout.admin_notes}
+                  accountDetails={{
+                    bank: payout.bank_name,
+                    accountName: payout.account_name,
+                    accountNumber: payout.account_number
+                  }}
+                />
               ))
             )}
           </div>

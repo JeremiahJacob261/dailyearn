@@ -338,15 +338,17 @@ export const databaseService = {
 
   async completeTask(userId: string, taskId: string, reward: number) {
     try {
-      // Check if user has completed this task recently (within the last hour)
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      // Get dynamic cooldown time from settings
+      const cooldownSeconds = await this.getCooldownSeconds();
+      const cooldownAgo = new Date(Date.now() - cooldownSeconds * 1000).toISOString();
+      
       const { data: recentCompletion } = await supabase
         .from('dailyearn_transactions')
         .select('id, created_at')
         .eq('user_id', userId)
         .eq('task_id', taskId)
         .eq('type', 'task')
-        .gte('created_at', oneHourAgo)
+        .gte('created_at', cooldownAgo)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
@@ -383,14 +385,14 @@ export const databaseService = {
 
   async getUserCompletedTasks(userId: string): Promise<string[]> {
     try {
-      // Get tasks completed in the last hour
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      // Get tasks completed in the last 20 seconds
+      const twentySecondsAgo = new Date(Date.now() - 20 * 1000).toISOString();
       const { data, error } = await supabase
         .from('dailyearn_transactions')
         .select('task_id')
         .eq('user_id', userId)
         .eq('type', 'task')
-        .gte('created_at', oneHourAgo)
+        .gte('created_at', twentySecondsAgo)
         .not('task_id', 'is', null);
 
       if (error) throw error;
@@ -403,14 +405,17 @@ export const databaseService = {
 
   async getTaskCooldownInfo(userId: string, taskId: string): Promise<{ canComplete: boolean; timeRemaining?: number }> {
     try {
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      // Get dynamic cooldown time from settings
+      const cooldownSeconds = await this.getCooldownSeconds();
+      const cooldownAgo = new Date(Date.now() - cooldownSeconds * 1000).toISOString();
+      
       const { data: recentCompletion } = await supabase
         .from('dailyearn_transactions')
         .select('created_at')
         .eq('user_id', userId)
         .eq('task_id', taskId)
         .eq('type', 'task')
-        .gte('created_at', oneHourAgo)
+        .gte('created_at', cooldownAgo)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
@@ -420,12 +425,12 @@ export const databaseService = {
       }
 
       const completionTime = new Date(recentCompletion.created_at).getTime();
-      const oneHourLater = completionTime + (60 * 60 * 1000);
-      const timeRemaining = Math.max(0, oneHourLater - Date.now());
+      const cooldownEndTime = completionTime + (cooldownSeconds * 1000);
+      const timeRemaining = Math.max(0, cooldownEndTime - Date.now());
       
       return {
         canComplete: timeRemaining === 0,
-        timeRemaining: Math.ceil(timeRemaining / (60 * 1000)) // Return minutes remaining
+        timeRemaining: Math.ceil(timeRemaining / 1000) // Return seconds remaining
       };
     } catch (error) {
       console.error('Error checking task cooldown:', error);
@@ -447,5 +452,158 @@ export const databaseService = {
       console.error('Error fetching user transactions:', error);
       return [];
     }
-  }
+  },
+
+  // Settings management functions
+  async getSetting(settingKey: string): Promise<string | null> {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_settings')
+        .select('setting_value')
+        .eq('setting_key', settingKey)
+        .single();
+
+      if (error) throw error;
+      return data?.setting_value || null;
+    } catch (error) {
+      console.error('Error fetching setting:', error);
+      return null;
+    }
+  },
+
+  async updateSetting(settingKey: string, settingValue: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('dailyearn_settings')
+        .update({ 
+          setting_value: settingValue, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('setting_key', settingKey);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating setting:', error);
+      return false;
+    }
+  },
+
+  async getAllSettings(): Promise<{ [key: string]: string }> {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_settings')
+        .select('setting_key, setting_value');
+
+      if (error) throw error;
+      
+      const settings: { [key: string]: string } = {};
+      data?.forEach(item => {
+        settings[item.setting_key] = item.setting_value;
+      });
+      
+      return settings;
+    } catch (error) {
+      console.error('Error fetching all settings:', error);
+      return {};
+    }
+  },
+
+  async getRewardDelaySeconds(): Promise<number> {
+    try {
+      const delayValue = await this.getSetting('task_reward_delay_seconds');
+      return parseInt(delayValue || '10', 10);
+    } catch (error) {
+      console.error('Error fetching reward delay:', error);
+      return 10; // Default fallback
+    }
+  },
+
+  async getCooldownSeconds(): Promise<number> {
+    try {
+      const cooldownValue = await this.getSetting('task_cooldown_seconds');
+      return parseInt(cooldownValue || '20', 10);
+    } catch (error) {
+      console.error('Error fetching cooldown seconds:', error);
+      return 20; // Default fallback
+    }
+  },
+
+  async getMinimumWithdrawalAmount(): Promise<number> {
+    try {
+      const minAmount = await this.getSetting('minimum_withdrawal_amount');
+      return parseInt(minAmount || '5000', 10);
+    } catch (error) {
+      console.error('Error fetching minimum withdrawal amount:', error);
+      return 5000; // Default fallback
+    }
+  },
+
+  async updatePayoutStatus(payoutId: string, status: string, adminNotes?: string): Promise<boolean> {
+    try {
+      const updateData: any = { 
+        status,
+        processed_at: new Date().toISOString()
+      };
+      
+      if (adminNotes) {
+        updateData.admin_notes = adminNotes;
+      }
+
+      // If rejecting, refund the amount to user's balance
+      if (status === 'rejected') {
+        // First get the payout details
+        const { data: payout, error: payoutError } = await supabase
+          .from('dailyearn_payouts')
+          .select('user_id, amount')
+          .eq('id', payoutId)
+          .single();
+
+        if (payoutError) throw payoutError;
+
+        // Refund the amount to user's balance
+        await this.incrementUserBalance(payout.user_id, payout.amount);
+
+        // Create a transaction record for the refund
+        await supabase
+          .from('dailyearn_transactions')
+          .insert({
+            user_id: payout.user_id,
+            type: 'payout_refund',
+            amount: payout.amount,
+            description: `Payout request refund - Request rejected`,
+          });
+      }
+
+      const { error } = await supabase
+        .from('dailyearn_payouts')
+        .update(updateData)
+        .eq('id', payoutId);
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating payout status:', error);
+      throw error;
+    }
+  },
+
+  async getPayoutDetails(payoutId: string) {
+    try {
+      const { data, error } = await supabase
+        .from('dailyearn_payouts')
+        .select(`
+          *,
+          user:dailyearn_users!user_id(full_name, email, balance)
+        `)
+        .eq('id', payoutId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching payout details:', error);
+      throw error;
+    }
+  },
 }

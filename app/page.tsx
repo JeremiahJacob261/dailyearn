@@ -101,7 +101,7 @@ export default function CreateAccount() {
       setAlert({ type: 'success', message: 'Account created successfully!' })
       
       setTimeout(() => {
-        router.push("/verification")
+        router.push("/terms")
       }, 1500)
     } catch (error: any) {
       setAlert({ type: 'error', message: error.message || 'Failed to create account' })

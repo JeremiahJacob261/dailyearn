@@ -42,7 +42,7 @@ export function TaskCard({
         {isOnCooldown ? (
           <div className="mt-2 px-4 py-1 bg-orange-500 text-white rounded-full text-sm font-semibold flex items-center gap-1">
             <Clock size={12} />
-            {cooldownMinutes}m left
+            {cooldownMinutes}s left
           </div>
         ) : (
           <div className="mt-2 px-4 py-1 bg-white text-black rounded-full text-sm font-semibold">

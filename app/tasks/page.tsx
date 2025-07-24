@@ -94,7 +94,7 @@ export default function Tasks() {
     }
   }, [userId, tasks])
 
-  // Add countdown timer to update cooldowns every minute
+  // Add countdown timer to update cooldowns every second
   useEffect(() => {
     const interval = setInterval(() => {
       setTaskCooldowns(prev => {
@@ -108,7 +108,7 @@ export default function Tasks() {
         })
         return hasChanges ? updated : prev
       })
-    }, 60000) // Update every minute
+    }, 1000) // Update every second
 
     return () => clearInterval(interval)
   }, [])
@@ -135,7 +135,11 @@ export default function Tasks() {
       
       // Mark task as completed on frontend and update cooldown
       setCompletedTaskIds(prev => ({ ...prev, [activeTask.id]: true }))
-      setTaskCooldowns(prev => ({ ...prev, [activeTask.id]: 60 })) // 60 minutes cooldown
+      
+      // Get dynamic cooldown time from settings
+      const cooldownSeconds = await databaseService.getCooldownSeconds()
+      setTaskCooldowns(prev => ({ ...prev, [activeTask.id]: cooldownSeconds }))
+      
       setLastReward(`₦${activeTask.reward.toFixed(2)}`)
       setShowSuccess(true)
 

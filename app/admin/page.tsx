@@ -124,8 +124,8 @@ export default function AdminDashboard() {
           *,
           user:dailyearn_users!user_id(full_name)
         `)
-        .gte('requested_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
-        .order('requested_at', { ascending: false })
+        .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+        .order('created_at', { ascending: false })
         .limit(5)
       
       if (recentPayouts) {
@@ -136,7 +136,7 @@ export default function AdminDashboard() {
               id: `payout_completed_${payout.id}`,
               type: 'payout_processed',
               message: `Payout of ₦${payout.amount.toLocaleString()} processed for ${user?.full_name || 'User'}`,
-              timestamp: payout.processed_at || payout.requested_at,
+              timestamp: payout.processed_at || payout.created_at,
               user: user?.full_name,
               color: 'bg-purple-500',
               bgColor: 'bg-purple-50 border-purple-100'
@@ -146,7 +146,7 @@ export default function AdminDashboard() {
               id: `payout_requested_${payout.id}`,
               type: 'payout_requested',
               message: `New payout request of ₦${payout.amount.toLocaleString()} from ${user?.full_name || 'User'}`,
-              timestamp: payout.requested_at,
+              timestamp: payout.created_at,
               user: user?.full_name,
               color: 'bg-yellow-500',
               bgColor: 'bg-yellow-50 border-yellow-200'

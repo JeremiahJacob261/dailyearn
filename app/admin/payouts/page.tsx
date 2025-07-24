@@ -42,15 +42,17 @@ import {
   AlertTriangle
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { databaseService } from "@/lib/database"
 
 interface Payout {
+  admin_notes: any
   id: string
   user_id: string
   amount: number
   status: 'pending' | 'approved' | 'completed' | 'rejected'
   method: 'bank_transfer' | 'mobile_money' | 'paypal'
   account_details: any
-  requested_at: string
+  created_at: string
   processed_at?: string
   reference: string
   user?: {
@@ -65,6 +67,8 @@ export default function AdminPayoutsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedPayout, setSelectedPayout] = useState<Payout | null>(null)
+  const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [adminNotes, setAdminNotes] = useState("")
 
   useEffect(() => {
     fetchPayouts()
@@ -79,7 +83,7 @@ export default function AdminPayoutsPage() {
           *,
           user:dailyearn_users!user_id(full_name, email)
         `)
-        .order('requested_at', { ascending: false })
+        .order('created_at', { ascending: false })
 
       if (error) throw error
       setPayouts(payoutsData || [])
@@ -92,20 +96,25 @@ export default function AdminPayoutsPage() {
 
   const handleStatusUpdate = async (payoutId: string, newStatus: string) => {
     try {
-      const updateData: any = { status: newStatus }
-      if (newStatus === 'completed' || newStatus === 'approved') {
-        updateData.processed_at = new Date().toISOString()
-      }
-
-      const { error } = await supabase
-        .from('dailyearn_payouts')
-        .update(updateData)
-        .eq('id', payoutId)
-
-      if (error) throw error
+      await databaseService.updatePayoutStatus(payoutId, newStatus, adminNotes)
+      setAdminNotes("")
+      setShowDetailsModal(false)
+      setSelectedPayout(null)
       fetchPayouts()
     } catch (error) {
       console.error("Error updating payout:", error)
+      alert("Error updating payout status")
+    }
+  }
+
+  const handleViewDetails = async (payout: Payout) => {
+    try {
+      const details = await databaseService.getPayoutDetails(payout.id)
+      setSelectedPayout(details)
+      setShowDetailsModal(true)
+    } catch (error) {
+      console.error("Error fetching payout details:", error)
+      alert("Error fetching payout details")
     }
   }
 
@@ -331,14 +340,14 @@ export default function AdminPayoutsPage() {
                           {payout.reference}
                         </TableCell>
                         <TableCell className="text-gray-600">
-                          {new Date(payout.requested_at).toLocaleDateString()}
+                          {new Date(payout.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => setSelectedPayout(payout)}
+                              onClick={() => handleViewDetails(payout)}
                               className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                             >
                               <Eye className="w-4 h-4" />
@@ -357,7 +366,10 @@ export default function AdminPayoutsPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleStatusUpdate(payout.id, 'rejected')}
+                                  onClick={() => {
+                                    setSelectedPayout(payout)
+                                    setShowDetailsModal(true)
+                                  }}
                                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                 >
                                   <XCircle className="w-4 h-4" />
@@ -401,7 +413,7 @@ export default function AdminPayoutsPage() {
       </Card>
 
       {/* Payout Details Modal */}
-      <Dialog open={!!selectedPayout} onOpenChange={() => setSelectedPayout(null)}>
+      <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Payout Request Details</DialogTitle>
@@ -451,10 +463,25 @@ export default function AdminPayoutsPage() {
               {/* Account Details */}
               <div>
                 <h3 className="font-medium text-gray-900 mb-2">Account Details</h3>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <pre className="text-sm text-gray-700 whitespace-pre-wrap">
-                    {JSON.stringify(selectedPayout.account_details, null, 2)}
-                  </pre>
+                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Account Name:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {selectedPayout.account_details?.accountName || 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Account Number:</span>
+                    <span className="text-sm font-medium text-gray-900 font-mono">
+                      {selectedPayout.account_details?.accountNumber || 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Bank:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {selectedPayout.account_details?.bank || 'N/A'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -466,7 +493,7 @@ export default function AdminPayoutsPage() {
                     <p className="text-sm">
                       <span className="text-gray-600">Requested:</span>{' '}
                       <span className="text-gray-900">
-                        {new Date(selectedPayout.requested_at).toLocaleString()}
+                        {new Date(selectedPayout.created_at).toLocaleString()}
                       </span>
                     </p>
                     {selectedPayout.processed_at && (
@@ -481,29 +508,50 @@ export default function AdminPayoutsPage() {
                 </div>
               </div>
 
+              {/* Admin Notes Input (for pending status) */}
+              {selectedPayout.status === 'pending' && (
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Admin Notes</h3>
+                  <textarea
+                    value={adminNotes}
+                    onChange={(e) => setAdminNotes(e.target.value)}
+                    placeholder="Enter notes for rejection or approval (optional)"
+                    className="w-full p-3 border border-gray-300 rounded-lg resize-none text-sm"
+                    rows={3}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Notes will be saved with the payout status update
+                  </p>
+                </div>
+              )}
+
+              {/* Existing Admin Notes (for processed payouts) */}
+              {selectedPayout.admin_notes && (
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-2">Admin Notes</h3>
+                  <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                    <p className="text-sm text-gray-700">{selectedPayout.admin_notes}</p>
+                  </div>
+                </div>
+              )}
+
               {/* Action Buttons */}
               {selectedPayout.status === 'pending' && (
                 <div className="flex space-x-3 pt-4 border-t">
                   <Button
-                    onClick={() => {
-                      handleStatusUpdate(selectedPayout.id, 'approved')
-                      setSelectedPayout(null)
-                    }}
+                    onClick={() => handleStatusUpdate(selectedPayout.id, 'approved')}
                     className="bg-green-600 hover:bg-green-700 text-white"
                   >
                     <CheckCircle className="w-4 h-4 mr-2" />
                     Approve Payout
                   </Button>
                   <Button
+                    onClick={() => handleStatusUpdate(selectedPayout.id, 'rejected')}
                     variant="outline"
-                    onClick={() => {
-                      handleStatusUpdate(selectedPayout.id, 'rejected')
-                      setSelectedPayout(null)
-                    }}
                     className="border-red-300 text-red-600 hover:bg-red-50"
                   >
                     <XCircle className="w-4 h-4 mr-2" />
-                    Reject Payout
+                    Reject & Refund
                   </Button>
                 </div>
               )}
@@ -511,12 +559,10 @@ export default function AdminPayoutsPage() {
               {selectedPayout.status === 'approved' && (
                 <div className="flex space-x-3 pt-4 border-t">
                   <Button
-                    onClick={() => {
-                      handleStatusUpdate(selectedPayout.id, 'completed')
-                      setSelectedPayout(null)
-                    }}
+                    onClick={() => handleStatusUpdate(selectedPayout.id, 'completed')}
                     className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
+                    <CheckCircle className="w-4 h-4 mr-2" />
                     Mark as Completed
                   </Button>
                 </div>

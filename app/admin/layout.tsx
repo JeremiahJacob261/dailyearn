@@ -26,7 +26,11 @@ const sidebarNavItems = [
   {
     title: "Payouts",
     href: "/admin/payouts",
+  },{
+    title: "Settings",
+    href: "/admin/settings",
   },
+
 ]
 
 interface SettingsLayoutProps {
@@ -139,7 +143,9 @@ export default function AdminLayout({ children }: SettingsLayoutProps) {
               </Button>
               <ThemeToggle />
               <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <Settings className="w-4 h-4" />
+                <Settings className="w-4 h-4" onClick={()=>{ 
+                  router.push('/admin/settings')
+                }}/>
               </Button>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <User className="w-4 h-4" />

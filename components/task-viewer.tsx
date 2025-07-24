@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { X, Clock, ExternalLink } from "lucide-react"
-import { TaskData } from "@/lib/database"
+import { TaskData, databaseService } from "@/lib/database"
 
 interface TaskViewerProps {
   task: TaskData
@@ -13,6 +13,23 @@ interface TaskViewerProps {
 export function TaskViewer({ task, onComplete, onClose }: TaskViewerProps) {
   const [timer, setTimer] = useState(10)
   const [linkOpened, setLinkOpened] = useState(false)
+  const [initialTimer, setInitialTimer] = useState(10)
+
+  useEffect(() => {
+    // Load the reward delay from admin settings
+    const loadRewardDelay = async () => {
+      try {
+        const delay = await databaseService.getRewardDelaySeconds()
+        setTimer(delay)
+        setInitialTimer(delay)
+      } catch (error) {
+        console.error('Error loading reward delay:', error)
+        // Keep default of 10 seconds
+      }
+    }
+    
+    loadRewardDelay()
+  }, [])
 
   useEffect(() => {
     // Open the task link in a new tab when component mounts

@@ -37,6 +37,21 @@ CREATE INDEX idx_dailyearn_users_referral_code ON dailyearn_users(referral_code)
 CREATE INDEX idx_dailyearn_verification_codes_user_id ON dailyearn_verification_codes(user_id);
 CREATE INDEX idx_dailyearn_verification_codes_code ON dailyearn_verification_codes(code);
 
+-- Create settings table for admin configurations
+CREATE TABLE dailyearn_settings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  setting_key VARCHAR(100) UNIQUE NOT NULL,
+  setting_value TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert default settings
+INSERT INTO dailyearn_settings (setting_key, setting_value, description) VALUES
+('task_reward_delay_seconds', '10', 'Number of seconds users must wait before receiving task rewards'),
+('task_cooldown_seconds', '20', 'Number of seconds users must wait before attempting the same task again'),
+('minimum_withdrawal_amount', '5000', 'Minimum amount users can withdraw in naira');
 
 -- Add this function to your schema
 CREATE OR REPLACE FUNCTION increment_balance(user_id UUID, amount DECIMAL)
@@ -88,3 +103,18 @@ CREATE TABLE dailyearn_transactions (
   task_id UUID REFERENCES dailyearn_tasks(id) ON DELETE SET NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Added settings table
+CREATE TABLE dailyearn_settings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  setting_key VARCHAR(100) UNIQUE NOT NULL,
+  setting_value TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Default settings
+INSERT INTO dailyearn_settings (setting_key, setting_value, description) VALUES
+('task_reward_delay_seconds', '10', 'Number of seconds users must wait before receiving task rewards'),
+('task_cooldown_seconds', '20', 'Number of seconds users must wait before attempting the same task again');
