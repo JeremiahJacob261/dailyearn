@@ -118,7 +118,11 @@ export default function SignIn() {
         </div>
 
         <div className="text-left">
-          <button type="button" className="text-gray-500 dark:text-stone-400 text-base md:text-lg hover:text-gray-700 dark:hover:text-stone-300 transition-colors">
+          <button 
+            type="button" 
+            onClick={() => router.push("/forgot-password")}
+            className="text-gray-500 dark:text-stone-400 text-base md:text-lg hover:text-gray-700 dark:hover:text-stone-300 transition-colors"
+          >
             Forgot password?
           </button>
         </div>

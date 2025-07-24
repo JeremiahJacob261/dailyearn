@@ -70,6 +70,42 @@ export const authService = {
           expires_at: expiresAt.toISOString(),
         })
 
+      // Send welcome and verification emails
+      // Check if we're on client or server side
+      if (typeof window !== 'undefined') {
+        // Client side - use API routes
+        const { clientEmailService } = await import('./client-email')
+        
+        // Send verification email
+        await clientEmailService.sendVerificationEmail(
+          newUser.email,
+          newUser.full_name,
+          verificationCode
+        )
+        
+        // Send welcome email
+        await clientEmailService.sendWelcomeEmail(
+          newUser.email,
+          newUser.full_name
+        )
+      } else {
+        // Server side - use direct email service
+        const { emailService } = await import('./email')
+        
+        // Send verification email
+        await emailService.sendVerificationEmail(
+          newUser.email,
+          newUser.full_name,
+          verificationCode
+        )
+        
+        // Send welcome email
+        await emailService.sendWelcomeEmail(
+          newUser.email,
+          newUser.full_name
+        )
+      }
+
       // Store user session (same as sign in)
       localStorage.setItem('user', JSON.stringify({
         id: newUser.id,
@@ -248,6 +284,151 @@ export const authService = {
       return true
     } catch (error) {
       throw error
+    }
+  },
+
+  async requestPasswordReset(email: string) {
+    try {
+      // Check if user exists
+      const { data: user, error: userError } = await supabase
+        .from('dailyearn_users')
+        .select('id, full_name, email')
+        .eq('email', email)
+        .single()
+
+      if (userError || !user) {
+        throw new Error('No account found with this email address')
+      }
+
+      // Generate reset token
+      const resetToken = Math.random().toString(36).substring(2, 15) + 
+                        Math.random().toString(36).substring(2, 15) +
+                        Date.now().toString(36)
+
+      // Set expiration time (1 hour from now)
+      const expiresAt = new Date()
+      expiresAt.setHours(expiresAt.getHours() + 1)
+
+      // Store reset token in database
+      const { error: tokenError } = await supabase
+        .from('dailyearn_password_reset_tokens')
+        .insert({
+          user_id: user.id,
+          token: resetToken,
+          expires_at: expiresAt.toISOString()
+        })
+
+      if (tokenError) throw tokenError
+
+      // Send password reset email
+      let emailSent = false
+      
+      // Check if we're on client or server side
+      if (typeof window !== 'undefined') {
+        // Client side - use API routes
+        const { clientEmailService } = await import('./client-email')
+        emailSent = await clientEmailService.sendPasswordResetEmail(
+          user.email,
+          user.full_name,
+          resetToken
+        )
+      } else {
+        // Server side - use direct email service
+        const { emailService } = await import('./email')
+        emailSent = await emailService.sendPasswordResetEmail(
+          user.email,
+          user.full_name,
+          resetToken
+        )
+      }
+
+      if (!emailSent) {
+        throw new Error('Failed to send password reset email')
+      }
+
+      return true
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      // Verify token and get user info
+      const { data: tokenData, error: tokenError } = await supabase
+        .from('dailyearn_password_reset_tokens')
+        .select(`
+          id,
+          user_id,
+          expires_at,
+          used,
+          dailyearn_users (
+            id,
+            email,
+            full_name
+          )
+        `)
+        .eq('token', token)
+        .eq('used', false)
+        .single()
+
+      if (tokenError || !tokenData) {
+        throw new Error('Invalid or expired reset token')
+      }
+
+      // Check if token has expired
+      if (new Date(tokenData.expires_at) < new Date()) {
+        throw new Error('Reset token has expired')
+      }
+
+      // Hash new password
+      const passwordHash = await bcrypt.hash(newPassword, 12)
+
+      // Update user password
+      const { error: updateError } = await supabase
+        .from('dailyearn_users')
+        .update({ 
+          password_hash: passwordHash,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', tokenData.user_id)
+
+      if (updateError) throw updateError
+
+      // Mark token as used
+      const { error: markUsedError } = await supabase
+        .from('dailyearn_password_reset_tokens')
+        .update({ used: true })
+        .eq('id', tokenData.id)
+
+      if (markUsedError) throw markUsedError
+
+      return true
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async validateResetToken(token: string) {
+    try {
+      const { data: tokenData, error } = await supabase
+        .from('dailyearn_password_reset_tokens')
+        .select('id, expires_at, used')
+        .eq('token', token)
+        .eq('used', false)
+        .single()
+
+      if (error || !tokenData) {
+        return { valid: false, message: 'Invalid reset token' }
+      }
+
+      if (new Date(tokenData.expires_at) < new Date()) {
+        return { valid: false, message: 'Reset token has expired' }
+      }
+
+      return { valid: true, message: 'Token is valid' }
+    } catch (error) {
+      return { valid: false, message: 'Error validating token' }
     }
   }
 }

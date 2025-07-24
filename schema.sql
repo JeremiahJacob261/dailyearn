@@ -31,11 +31,23 @@ CREATE TABLE dailyearn_verification_codes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create password_reset_tokens table
+CREATE TABLE dailyearn_password_reset_tokens (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES dailyearn_users(id) ON DELETE CASCADE,
+  token VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  used BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes
 CREATE INDEX idx_dailyearn_users_email ON dailyearn_users(email);
 CREATE INDEX idx_dailyearn_users_referral_code ON dailyearn_users(referral_code);
 CREATE INDEX idx_dailyearn_verification_codes_user_id ON dailyearn_verification_codes(user_id);
 CREATE INDEX idx_dailyearn_verification_codes_code ON dailyearn_verification_codes(code);
+CREATE INDEX idx_dailyearn_password_reset_tokens_user_id ON dailyearn_password_reset_tokens(user_id);
+CREATE INDEX idx_dailyearn_password_reset_tokens_token ON dailyearn_password_reset_tokens(token);
 
 -- Create settings table for admin configurations
 CREATE TABLE dailyearn_settings (
