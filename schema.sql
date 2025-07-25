@@ -127,6 +127,40 @@ CREATE TABLE dailyearn_settings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create contact messages table
+CREATE TABLE dailyearn_contact_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  subject VARCHAR(500) NOT NULL,
+  message TEXT NOT NULL,
+  user_id UUID REFERENCES dailyearn_users(id) ON DELETE SET NULL,
+  status VARCHAR(20) DEFAULT 'new' CHECK (status IN ('new', 'read', 'responded', 'resolved')),
+  admin_notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for contact messages
+CREATE INDEX idx_dailyearn_contact_messages_email ON dailyearn_contact_messages(email);
+CREATE INDEX idx_dailyearn_contact_messages_status ON dailyearn_contact_messages(status);
+CREATE INDEX idx_dailyearn_contact_messages_user_id ON dailyearn_contact_messages(user_id);
+CREATE INDEX idx_dailyearn_contact_messages_created_at ON dailyearn_contact_messages(created_at);
+  email VARCHAR(255) NOT NULL,
+  subject VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  status VARCHAR(20) DEFAULT 'new',
+  admin_response TEXT,
+  user_id UUID REFERENCES dailyearn_users(id) ON DELETE SET NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index for contact messages
+CREATE INDEX idx_dailyearn_contact_messages_status ON dailyearn_contact_messages(status);
+CREATE INDEX idx_dailyearn_contact_messages_email ON dailyearn_contact_messages(email);
+CREATE INDEX idx_dailyearn_contact_messages_created_at ON dailyearn_contact_messages(created_at);
+
 -- Default settings
 INSERT INTO dailyearn_settings (setting_key, setting_value, description) VALUES
 ('task_reward_delay_seconds', '10', 'Number of seconds users must wait before receiving task rewards'),

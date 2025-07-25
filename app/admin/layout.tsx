@@ -26,11 +26,15 @@ const sidebarNavItems = [
   {
     title: "Payouts",
     href: "/admin/payouts",
-  },{
+  },
+  {
+    title: "Contact",
+    href: "/admin/contact",
+  },
+  {
     title: "Settings",
     href: "/admin/settings",
   },
-
 ]
 
 interface SettingsLayoutProps {

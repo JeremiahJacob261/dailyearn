@@ -430,6 +430,30 @@ export const authService = {
     } catch (error) {
       return { valid: false, message: 'Error validating token' }
     }
+  },
+
+  async updatePassword(userId: string, currentPassword: string, newPassword: string) {
+    try {
+      // First verify the current password
+      await this.verifyUserPassword(userId, currentPassword)
+
+      // Hash the new password
+      const newPasswordHash = await bcrypt.hash(newPassword, 10)
+
+      // Update the password in the database
+      const { error } = await supabase
+        .from('dailyearn_users')
+        .update({ password_hash: newPasswordHash })
+        .eq('id', userId)
+
+      if (error) {
+        throw new Error('Failed to update password')
+      }
+
+      return true
+    } catch (error) {
+      throw error
+    }
   }
 }
 
