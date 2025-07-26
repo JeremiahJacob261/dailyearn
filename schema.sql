@@ -7,7 +7,7 @@ CREATE TABLE dailyearn_users (
   referral_id VARCHAR(50),
   referral_code VARCHAR(50) UNIQUE NOT NULL DEFAULT 'REF' || LPAD(FLOOR(RANDOM() * 999999)::TEXT, 6, '0'),
   balance DECIMAL(10, 2) DEFAULT 0.00,
-  email_verified BOOLEAN DEFAULT false,
+  email_verified BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

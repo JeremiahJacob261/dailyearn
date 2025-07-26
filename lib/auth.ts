@@ -77,11 +77,11 @@ export const authService = {
         const { clientEmailService } = await import('./client-email')
         
         // Send verification email
-        await clientEmailService.sendVerificationEmail(
-          newUser.email,
-          newUser.full_name,
-          verificationCode
-        )
+        // await clientEmailService.sendVerificationEmail(
+        //   newUser.email,
+        //   newUser.full_name,
+        //   verificationCode
+        // )
         
         // Send welcome email
         await clientEmailService.sendWelcomeEmail(
@@ -93,11 +93,11 @@ export const authService = {
         const { emailService } = await import('./email')
         
         // Send verification email
-        await emailService.sendVerificationEmail(
-          newUser.email,
-          newUser.full_name,
-          verificationCode
-        )
+        // await emailService.sendVerificationEmail(
+        //   newUser.email,
+        //   newUser.full_name,
+        //   verificationCode
+        // )
         
         // Send welcome email
         await emailService.sendWelcomeEmail(
