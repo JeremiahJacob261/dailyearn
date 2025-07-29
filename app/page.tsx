@@ -54,11 +54,18 @@ export default function LandingPage() {
         <div className="mt-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4">Ads Are Everywhere.<br />Now They Pay You.</h2>
           <p className="text-gray-600 dark:text-gray-400 text-lg mb-8">Sit back, watch ads, and watch your balance grow.</p>
-          <Link href="/register">
-            <Button className="bg-lime-400 hover:bg-lime-500 text-black font-semibold px-10 py-3 text-lg rounded-full shadow-lg transition-all">
-              Sign up
-            </Button>
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <Link href="/register">
+              <Button className="bg-lime-400 hover:bg-lime-500 text-black font-semibold px-10 py-3 text-lg rounded-full shadow-lg transition-all">
+                Sign up
+              </Button>
+            </Link>
+            <Link href="/signin">
+              <Button className="bg-transparent border-2 border-lime-400 hover:bg-lime-400 text-lime-400 hover:text-black font-semibold px-10 py-3 text-lg rounded-full shadow-lg transition-all">
+                Login
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
         </div>
