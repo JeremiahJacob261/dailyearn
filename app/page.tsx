@@ -15,8 +15,11 @@ export default function LandingPage() {
       <header className="flex justify-between items-center px-6 py-6">
         <span className="text-black dark:text-white text-2xl font-bold tracking-tight">DailyEarn</span>
         <div className="flex items-center space-x-4">
-          <Button className="bg-stone-800 text-white px-6 py-2 rounded-lg hover:bg-stone-700 transition-colors" asChild>
-            <a href="/register">Get App</a>
+          <Button className="bg-stone-800 text-white px-6 py-2  hover:bg-stone-700 transition-colors" asChild>
+            <a href="/register">Register</a>
+          </Button>
+           <Button className="bg-lime-300 text-stone-800 px-6 py-2 hover:bg-lime-700 transition-colors" asChild>
+            <a href="/signin">Sign in</a>
           </Button>
           <HamburgerMenu />
         </div>
@@ -54,18 +57,7 @@ export default function LandingPage() {
         <div className="mt-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-4">Ads Are Everywhere.<br />Now They Pay You.</h2>
           <p className="text-gray-600 dark:text-gray-400 text-lg mb-8">Sit back, watch ads, and watch your balance grow.</p>
-          <div className="flex gap-4 justify-center">
-            <Link href="/register">
-              <Button className="bg-lime-400 hover:bg-lime-500 text-black font-semibold px-10 py-3 text-lg rounded-full shadow-lg transition-all">
-                Sign up
-              </Button>
-            </Link>
-            <Link href="/signin">
-              <Button className="bg-transparent border-2 border-lime-400 hover:bg-lime-400 text-lime-400 hover:text-black font-semibold px-10 py-3 text-lg rounded-full shadow-lg transition-all">
-                Login
-              </Button>
-            </Link>
-          </div>
+        
         </div>
       </section>
         </div>
