@@ -107,6 +107,13 @@ export default function ProfilePage() {
                 </svg>
                 Edit profile
               </button>
+
+              <button
+                onClick={()=> { router.push("/contact") }}
+                className="w-full max-w-xs flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-lg rounded-full py-3 mb-8 transition-all"
+              >
+                Contact
+              </button>
             </div>
             {/* Stats */}
             <div className="flex justify-center gap-4 mb-10">

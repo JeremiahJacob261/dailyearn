@@ -18,9 +18,9 @@ export default function LandingPage() {
           <Button className="bg-stone-800 text-white px-6 py-2  hover:bg-stone-700 transition-colors" asChild>
             <a href="/register">Register</a>
           </Button>
-           <Button className="bg-lime-300 text-stone-800 px-6 py-2 hover:bg-lime-700 transition-colors" asChild>
+            <Button className="hidden md:flex bg-lime-300 text-stone-800 px-6 py-2 hover:bg-lime-700 transition-colors" asChild>
             <a href="/signin">Sign in</a>
-          </Button>
+            </Button>
           <HamburgerMenu />
         </div>
       </header>
