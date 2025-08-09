@@ -44,12 +44,12 @@ export default function CreateAccount() {
     }
     
     if (formData.password.length !== 6) {
-      setAlert({ type: 'error', message: 'Password must be exactly 6 digits' })
+      setAlert({ type: 'error', message: 'Password must be exactly 6 characters' })
       return false
     }
     
     if (!/^\d{6}$/.test(formData.password)) {
-      setAlert({ type: 'error', message: 'Password must contain only 6 digits' })
+      setAlert({ type: 'error', message: 'Password must contain only 6 characters' })
       return false
     }
     
@@ -193,13 +193,13 @@ export default function CreateAccount() {
 
         <div className="space-y-2">
           <Label htmlFor="password" className="text-black dark:text-white text-base font-normal">
-            Password (6 digits)
+            Password
           </Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="6-digit password"
+              placeholder="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"
@@ -229,7 +229,7 @@ export default function CreateAccount() {
             <Input
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
-              placeholder="Confirm 6-digit password"
+              placeholder="Confirm password"
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"

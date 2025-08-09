@@ -1,9 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { HamburgerMenu } from "@/components/hamburger-menu"
 
 export default function LandingPage() {
@@ -12,15 +10,15 @@ export default function LandingPage() {
       {/* Theme Toggle */}
       
       {/* Header */}
-      <header className="flex justify-between items-center px-6 py-6">
+      <header className="flex justify-between items-center px-2 py-6">
         <span className="text-black dark:text-white text-2xl font-bold tracking-tight">DailyEarn</span>
         <div className="flex items-center space-x-4">
-          <Button className="bg-stone-800 text-white px-6 py-2  hover:bg-stone-700 transition-colors" asChild>
-            <a href="/register">Register</a>
+          <Button className="bg-stone-800 text-white px-3 py-2  hover:bg-stone-700 transition-colors" asChild>
+        <a href="/register">Register</a>
           </Button>
-            <Button className="hidden md:flex bg-lime-300 text-stone-800 px-6 py-2 hover:bg-lime-700 transition-colors" asChild>
-            <a href="/signin">Sign in</a>
-            </Button>
+          <Button className="bg-lime-300 text-stone-800 px-3 py-2 hover:bg-lime-700 transition-colors" asChild>
+        <a href="/signin">Sign in</a>
+          </Button>
           <HamburgerMenu />
         </div>
       </header>
