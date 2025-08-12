@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MobileLayout } from "@/components/mobile-layout"
-import { PasswordRequirements } from "@/components/password-requirements"
 import { Alert } from "@/components/ui/alert"
 import { authService } from "@/lib/auth"
 
@@ -43,13 +42,8 @@ export default function CreateAccount() {
       return false
     }
     
-    if (formData.password.length !== 6) {
-      setAlert({ type: 'error', message: 'Password must be exactly 6 characters' })
-      return false
-    }
-    
-    if (!/^\d{6}$/.test(formData.password)) {
-      setAlert({ type: 'error', message: 'Password must contain only 6 characters' })
+    if (!formData.password.trim()) {
+      setAlert({ type: 'error', message: 'Password is required' })
       return false
     }
     
@@ -203,8 +197,6 @@ export default function CreateAccount() {
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"
-              maxLength={6}
-              pattern="[0-9]{6}"
               required
               disabled={isLoading}
             />
@@ -219,8 +211,6 @@ export default function CreateAccount() {
           </div>
         </div>
 
-        {formData.password && <PasswordRequirements password={formData.password} />}
-
         <div className="space-y-2">
           <Label htmlFor="confirmPassword" className="text-black dark:text-white text-base font-normal">
             Confirm password
@@ -233,8 +223,6 @@ export default function CreateAccount() {
               value={formData.confirmPassword}
               onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               className="bg-transparent border-stone-600 border-2 rounded-xl h-14 md:h-16 text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-stone-400 focus:border-stone-400 focus:ring-0 pr-12"
-              maxLength={6}
-              pattern="[0-9]{6}"
               required
               disabled={isLoading}
             />

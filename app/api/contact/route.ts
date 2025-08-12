@@ -44,6 +44,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Send notification email to admin
+    try {
+      const { emailService } = await import('@/lib/email');
+      await emailService.sendEmail({
+        to: 'goodvtu@gmail.com',
+        subject: `New Contact Message: ${subject}`,
+        html: `
+          <h2>New Contact Message Received</h2>
+          <p><strong>From:</strong> ${name} (${email})</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Message:</strong></p>
+          <p style="background: #f5f5f5; padding: 15px; border-radius: 8px;">${message.replace(/\n/g, '<br>')}</p>
+          <p><strong>Submitted at:</strong> ${new Date().toLocaleString()}</p>
+          ${userId ? `<p><strong>User ID:</strong> ${userId}</p>` : '<p><strong>User:</strong> Not logged in</p>'}
+        `,
+        text: `
+New Contact Message Received
+
+From: ${name} (${email})
+Subject: ${subject}
+Message: ${message}
+Submitted at: ${new Date().toLocaleString()}
+${userId ? `User ID: ${userId}` : 'User: Not logged in'}
+        `
+      });
+    } catch (emailError) {
+      console.error('Failed to send admin notification email:', emailError);
+      // Don't fail the request if email notification fails
+    }
+
     return NextResponse.json({ 
       message: 'Contact message sent successfully',
       id: data.id 

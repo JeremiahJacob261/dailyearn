@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Mail, MessageSquare, User } from "lucide-react";
+import { ArrowLeft, Mail, MessageSquare, User, MessageCircle, Phone } from "lucide-react";
 
 export default function ContactUsPage() {
   const router = useRouter();
@@ -233,6 +233,33 @@ export default function ContactUsPage() {
             </Button>
           </div>
         </form>
+
+        {/* Alternative Contact Options */}
+        <div className="mt-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-4 text-center">
+            Or Contact Us Directly
+          </h3>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Button 
+              onClick={() => window.open('https://wa.me/2348109420514', '_blank')}
+              className="bg-green-500 hover:bg-green-600 text-white font-semibold flex-1 py-3"
+            >
+              <MessageCircle className="h-5 w-5 mr-2" />
+              WhatsApp Us
+            </Button>
+            <Button 
+              onClick={() => window.open('tel:+2348109420514', '_blank')}
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-900 font-semibold flex-1 py-3"
+            >
+              <Phone className="h-5 w-5 mr-2" />
+              Call Us
+            </Button>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 text-center mt-3">
+            Phone: +234 810 942 0514
+          </p>
+        </div>
 
         {/* FAQ Section */}
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
